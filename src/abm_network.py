@@ -1,0 +1,103 @@
+import random
+from typing import List
+import numpy as np
+import networkx as nx
+
+from abm import ABM
+from model_config import ModelConfig
+from agent import Agent
+
+class ABMNetwork(ABM):
+    # ABM using a contact network
+    # infections are only possible across edges in a graph (networkx.Graph)
+
+    # Network types supported:
+    # - Erdos-Renyi ("erdos_renyi")
+    # - Watts-Strogatz ("watts_strogatz")
+    # - Barabasi-Albert ("barabasi_albert")
+
+    def __init__(self, cfg: ModelConfig, network_type: str = "erdos_renyi", **net_params):
+        super().__init__(cfg)
+        self.network_type = network_type
+        self.net_params = net_params
+        self.G = self._create_network()
+
+
+    def _create_network(self) -> nx.Graph:
+        # Build chosen network type using supplied parameters
+        N = self.cfg.N
+
+        if self.network_type == "erdos_renyi":
+            # p = edge probability
+            p = self.net_params.get("p", 0.01)
+            G = nx.erdos_renyi_graph(N, p, seed=self.cfg.seed)
+        elif self.network_type == "watts_strogatz":
+            # k = avg degree, beta = rewiring probability
+            k = self.net_params.get("k", 6)
+            beta = self.net_params.get("beta", 0.1)
+            G = nx.watts_strogatz_graph(N, k, beta, seed=self.cfg.seed)
+        elif self.network_type == "barabasi_albert":
+            # m = number of edges from each new node
+            m = self.net_params.get("m", 3)
+            G = nx.barabasi_albert_graph(N, m, seed=self.cfg.seed)
+        else:
+            raise ValueError("Unknown network type")
+        
+        return G
+    
+
+    def step(self) -> None:
+        # Advance simulation one day with network-based transmission
+
+        # PHASES:
+        # 1) Infectious agents randomly choose neighbors to attempt infection
+        # 2) Newly infected are updated simultaneously (batch update)
+        # 3) Infection timers increment; agents exceeding infectious_days recover
+        # 4) Record S/I/R counts
+
+        # phase 1: collect candidates for new infection
+        newly_exposed: list[int] = []
+        
+        for i, agent in enumerate(self.agents):
+            if not agent.is_infectious:
+                continue
+
+            # Get neighbors of agent i in the network
+            neighbors = list(self.G.neighbors(i))
+            if not neighbors:
+                continue
+
+            # Choose `contacts_per_day` random neighbors to attempt contact
+            # sampling WITH replacement to simulate repeated daily contacts
+            contacts = random.choices(neighbors, k=self.cfg.contacts_per_day)
+
+            # Attempt infection on each contacted neighbor
+            for j in contacts:
+                target = self.agents[j]
+                if target.is_susceptible and random.random() < self.cfg.p_trans:
+                    newly_exposed.append(j)
+
+        # phase 2: apply new infections (batch)
+        for idx in newly_exposed:
+            tgt = self.agents[idx]
+            if tgt.is_susceptible: # re-check safety
+                tgt.state = Agent.INF
+                tgt.days_infected = 0
+        
+        # phase 3: update timers & recover
+        for ag in self.agents:
+            if ag.is_infectious:
+                ag.days_infected += 1
+                if ag.days_infected >= self.cfg.infectious_days:
+                    ag.state = Agent.REC
+        
+        # phase 4: log S/I/R counts
+        S_count = sum(1 for a in self.agents if a.is_susceptible)
+        I_count = sum(1 for a in self.agents if a.is_infectious)
+        R_count = sum(1 for a in self.agents if a.state == Agent.REC)
+    
+        self.daily_S.append(S_count)
+        self.daily_I.append(I_count)
+        self.daily_R.append(R_count)
+        
+        self.day += 1

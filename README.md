@@ -25,7 +25,7 @@ It is designed to be extensible rather than final.
 ## Planned extensions:
 - Add E stage (SEIR)
 - Age structure
-- Contact graph (networkx)
+- (DONE) Contact graph (networkx)
 - Interventions: lockdown, school closure, masks
 - Data export utilities
 - GUI application?

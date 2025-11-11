@@ -1,6 +1,6 @@
-from examples import ex1
+from examples import ex1, ex2
 def main():
-    ex1()
+    ex2()
 
 
 if __name__ == "__main__":
