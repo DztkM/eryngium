@@ -2,7 +2,7 @@ import numpy as np
 from model_config import ModelConfig
 from abm import ABM
 from abm_network import ABMNetwork
-from visualization import plot_sir
+from visualization import plot_sir, plot_network
 
 
 def ex1():
@@ -45,3 +45,7 @@ def ex2():
     }
 
     plot_sir(ts_dict)
+
+    # Plot final network state
+    agent_states = [a.state for a in model_net.agents]
+    plot_network(model_net.G, agent_states)
