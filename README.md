@@ -22,12 +22,13 @@ NOTE: This is a minimal intentionally compact version.
 It is designed to be extensible rather than final.
 
 
-## Planned extensions:
-- Add E stage (SEIR)
-- Age structure
+## Planned extensions: 
 - (DONE) Contact graph (networkx)
+- (DONE) Create SEIARD ABM
+- Age structure
 - Interventions: lockdown, school closure, masks
 - Data export utilities
+- Create other ABMs (ex: SEIR, SEIRD)?
 - GUI application?
 
 ## How To Run:

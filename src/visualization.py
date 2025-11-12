@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
 from matplotlib.animation import FuncAnimation
+from typing import List, Dict
+
 
 
 def plot_sir(time_series: dict[str, np.ndarray]) -> None:
@@ -19,14 +21,42 @@ def plot_sir(time_series: dict[str, np.ndarray]) -> None:
     for k, v in time_series.items():
         plt.plot(v, label=switcher[k])
     plt.xlabel("Day")
-    plt.ylabel("Population Count")
+    plt.ylabel("Individuals")
     plt.title("ABM SIR Time Series")
     plt.legend()
+    plt.tight_layout()
+    plt.grid(True, linestyle="--", alpha=0.5)
+    plt.show()
+
+
+def plot_seiard(history: Dict[str, list[int]]):
+    # Plot SEIAR-D curves
+
+    labels = {
+        "S": "Susceptible",
+        "E": "Exposed",
+        "IA": "Infectious Asymptomatic",
+        "IS": "Infectious Symptomatic",
+        "R": "Recovered",
+        "D": "Dead",
+    }
+    plt.figure(figsize=(8, 5))
+    colors = {
+        "S": "lightblue", "E": "orange", "IA": "purple",
+        "IS": "red", "R": "green", "D": "black"
+    }
+    for k, data in history.items():
+        plt.plot(data, color=colors[k], label=labels[k])
+    plt.xlabel("Day")
+    plt.ylabel("Individuals")
+    plt.title("Network-based SEIAR-D ABM Time Series")
+    plt.legend()
+    plt.grid(True, linestyle="--", alpha=0.5)
     plt.tight_layout()
     plt.show()
 
 
-def plot_network(G, agent_states=None, figsize=(6, 6)):
+def plot_network(G, agent_states=None, figsize=(6, 6), model_type = "SIR"):
     # Draw contact network using spring-layout
 
     # Parameters:
@@ -44,16 +74,24 @@ def plot_network(G, agent_states=None, figsize=(6, 6)):
     if agent_states is None:
         # all nodes one color
         colors = "lightblue"
-    else:
+    elif model_type == "SIR":
         # map S/I/R -> colors
         color_map = {0: "lightblue", 1: "red", 2: "green"}
         colors = [color_map[s] for s in agent_states]
+    elif model_type =="SEIARD" or model_type =="SEIAR":
+        color_map = {0: "lightblue", 1: "orange", 2: "purple",
+        3: "red", 4: "green", 5: "black"}
+        colors = [color_map[s] for s in agent_states]
+    else:
+        raise ValueError(
+            "Unknown `model_type`"
+        )
 
     nx.draw(G, pos, node_color=colors, node_size=50, with_labels=False)
     plt.show()
 
 
-def animate_network_spread(model, interval=300, figsize=(6,6)):
+def animate_network_spread(model, interval=300, figsize=(6,6), model_type = "SIR"):
     # Animate the SIR spread on the model's network.
 
     # Parameters:
@@ -80,9 +118,17 @@ def animate_network_spread(model, interval=300, figsize=(6,6)):
     ax.set_title("SIR Spread Over Network")
 
     # Color map
-    color_map = {0: "lightblue",    # susceptible
-                 1: "red",          # infected
-                 2: "green"}        # recovered
+    color_map = {}
+    if model_type == "SIR":
+        # map S/I/R -> colors
+        color_map = {0: "lightblue", 1: "red", 2: "green"}
+    elif model_type =="SEIARD" or model_type =="SEIAR":
+        color_map = {0: "lightblue", 1: "orange", 2: "purple",
+        3: "red", 4: "green", 5: "black"}
+    else:
+        raise ValueError(
+            "Unknown `model_type`"
+        )
     
     # Initial node color state
     node_colors = [color_map[s] for s in history[0]]
