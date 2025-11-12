@@ -95,10 +95,9 @@ class ABM:
         self.day += 1
 
 
-    def run(self, days: int = 67) -> np.ndarray:
+    def run(self, days: int = 67):
         # Run simulation for a fixed number of days
         # Returns Time Series of infectious counts
 
         for _ in range(days):
             self.step()
-        return np.array(self.daily_I)

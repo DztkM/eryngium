@@ -1,0 +1,71 @@
+import random
+import numpy as np
+
+from agent import Agent
+from seird.config_seiar import ConfigSEIAR
+
+class AgentSEIAR(Agent):
+    # Extended agent with SEIAR-D dynamics (inherits from base Agent)
+
+    # States:
+    # 0 = Susceptible (S)
+    # 1 = Exposed (E)
+    # 2 = Infectious Asymptomatic (IA)
+    # 3 = Infectious Symptomatic (IS)
+    # 4 = Recovered (R)
+    # 5 = Dead (D)
+
+    S, E, IS, IA, R, D = range(6)
+
+
+    def __init__(self, params: ConfigSEIAR, vaccinated: bool = False):
+        super().__init__(state=self.R if vaccinated else self.S)
+        self.params = params
+        self.symptomatic = False
+        self.days_remaining = 0
+
+
+    def infect(self):
+        # Transition from S -> E (exposed)
+        if self.state == self.S:
+            self.state = self.E
+            self.days_remaining = max(1, int(np.random.normal(self.params.inc_period_mean, self.params.inc_period_std)))
+
+
+    def become_infectious(self) -> None:
+        # Transition from E -> IA or IS
+        if random.random() < self.params.p_symptomatic:
+            self.state = self.IS
+            self.symptomatic = True
+            self.days_remaining = max(
+                1, int(np.random.normal(
+                    self.params.inf_period_mean_IS, self.params.inf_period_std_IS
+                ))
+            )
+        else:
+            self.state = self.IA
+            self.symptomatic = False
+            self.days_remaining = max(
+                1, int(np.random.normal(
+                    self.params.inf_period_mean_IA, self.params.inf_period_std_IA
+                ))
+            )
+
+
+    def progress(self) -> None:
+        # Advance infection timer and update states
+        if self.state in [self.E, self.IA, self.IS]:
+            self.days_remaining -= 1
+            if self.days_remaining <= 0:
+                if self.state == self.E:
+                    self.become_infectious()
+                elif self.state in [self.IA, self.IS]:
+                    # recovery or death
+                    if random.random() < self.params.mortality_rate:
+                        self.state = self.D
+                    else:
+                        self.state = self.R
+
+    @property
+    def is_infectious(self) -> bool:
+        return self.state in [self.IA, self.IS]
