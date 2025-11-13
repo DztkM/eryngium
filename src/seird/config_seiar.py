@@ -10,15 +10,15 @@ class ConfigSEIAR:
     contacts_per_day: int = 10
     seed: int | None = None
 
-    p_infect_IS: float = 0.4
-    p_infect_IA: float = 0.05
-    p_symptomatic: float = 0.85
+    p_infect_IS: float = 0.035
+    p_infect_IA: float = 0.017
+    p_symptomatic: float = 0.8
     mortality_rate: float = 0.025
 
     inf_period_mean_IS: float = 7
-    inf_period_std_IS: float = 3
-    inf_period_mean_IA: float = 3
+    inf_period_std_IS: float = 2
+    inf_period_mean_IA: float = 5
     inf_period_std_IA: float = 1.5
 
-    inc_period_mean: float = 3
-    inc_period_std: float = 1.5
+    inc_period_mean: float = 2
+    inc_period_std: float = 1
