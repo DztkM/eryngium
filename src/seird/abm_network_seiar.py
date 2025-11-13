@@ -45,6 +45,11 @@ class ABMNetworkSEIAR(ABMNetwork):
         # new_exposed = set()
         newly_exposed: list[int] = []
 
+        # check if anybody is exposed or infected otherwise end simulation
+        if not any(a.state in (AgentSEIAR.IA, AgentSEIAR.IS, AgentSEIAR.E) for a in self.agents):
+            print(f"Nobody infected or exposed. terminating simulation on day {self.day}")
+            return False
+
         # phase 1: collect candidates for new infection
         for i, agent in enumerate(self.agents):
             if not agent.is_infectious:
@@ -74,6 +79,7 @@ class ABMNetworkSEIAR(ABMNetwork):
         # phase 4: log states counts
         self._record_day()
         self.day += 1
+        return True
 
 
     def _record_day(self):

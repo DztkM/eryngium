@@ -2,6 +2,7 @@ import random
 from typing import List
 import numpy as np
 import networkx as nx
+from numba.core.types import Boolean
 
 from abm import ABM
 from model_config import ModelConfig
@@ -54,7 +55,7 @@ class ABMNetwork(ABM):
         return G
     
 
-    def step(self) -> None:
+    def step(self) -> bool:
         # Advance simulation one day with network-based transmission
 
         # PHASES:
@@ -65,6 +66,11 @@ class ABMNetwork(ABM):
 
         # phase 1: collect candidates for new infection
         newly_exposed: list[int] = []
+
+        # check if anybody is exposed or infected otherwise end simulation
+        if not any(a.state in Agent.INF for a in self.agents):
+            print(f"Nobody infected or exposed. terminating simulation on day {self.day}")
+            return False
         
         for i, agent in enumerate(self.agents):
             if not agent.is_infectious:
@@ -112,3 +118,4 @@ class ABMNetwork(ABM):
         self.history_states.append([a.state for a in self.agents])
         
         self.day += 1
+        return True

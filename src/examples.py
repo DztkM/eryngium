@@ -18,7 +18,8 @@ def ex_sir_1():
     )
     model = ABM(cfg)
     # Run model
-    model.run(days=90)
+    while model.run(days=90):
+        pass
     ts_dict = {
         "S": np.array(model.daily_S),
         "I": np.array(model.daily_I),
@@ -39,7 +40,8 @@ def ex_sirnetwork_1():
 
     model_net = ABMNetwork(cfg, network_type="watts_strogatz", k=10, beta=0.1)
     # Run model
-    model_net.run(days=50)
+    while model_net.run(days=50):
+        pass
     ts_dict = {
         "S": np.array(model_net.daily_S),
         "I": np.array(model_net.daily_I),
@@ -65,7 +67,8 @@ def ex_seiard_network_1():
     )
     model_seiard = ABMNetworkSEIAR(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
     # Run model
-    model_seiard.run(days=32)
+    while model_seiard.run(days=64):
+        pass
 
 
     plot_seiard(model_seiard.history)

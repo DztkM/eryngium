@@ -44,7 +44,7 @@ class ABM:
             np.random.seed(self.cfg.seed)
 
 
-    def step(self) -> None:
+    def step(self) -> bool:
         # Advance simulation by one day
 
         # PHASES:
@@ -55,6 +55,11 @@ class ABM:
 
         # phase 1: collect candidates for new infection
         newly_exposed: list[int] = []
+
+        # check if anybody is exposed or infected otherwise end simulation
+        if not any(a.state in Agent.INF for a in self.agents):
+            print(f"Nobody infected or exposed. terminating simulation on day {self.day}")
+            return False
 
         for i, agent in enumerate(self.agents):
             if not agent.is_infectious:
@@ -93,6 +98,7 @@ class ABM:
         self.daily_R.append(R_count)
         
         self.day += 1
+        return True
 
 
     def run(self, days: int = 67):
