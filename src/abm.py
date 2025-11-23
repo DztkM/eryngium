@@ -1,5 +1,5 @@
 import random
-from typing import List
+from typing import List, Dict
 import numpy as np
 
 from model_config import ModelConfig
@@ -16,24 +16,21 @@ class ABM:
 
     # Notes:
     # - Uses random mixing (well‑mixed population) by default
-    # - Hooks exist for contact-network logic in future
 
     def __init__(self, cfg: ModelConfig):
         self.cfg = cfg
         self._init_rng()
 
         # Create agents (initially all susceptible)
-        self.agents: List[Agent] = [Agent() for _ in range(cfg.N)]
+        self.agents: List[Agent] = [Agent(cfg) for _ in range(cfg.N)]
 
         # Infect I0 randomly
         initial_I = random.sample(range(cfg.N), cfg.I0)
         for idx in initial_I:
-            self.agents[idx].state = Agent.INF
+            self.agents[idx].state = Agent.I
 
-        # Time-series outputs (store S/I/R counts per day)
-        self.daily_I: list[int] = []
-        self.daily_S: list[int] = []
-        self.daily_R: list[int] = []
+        # Time-series tracking (store S/I/R counts per day)
+        self.history: Dict[str, list[int]] = {k: [] for k in ["S", "I", "R"]}
         self.day: int = 0
     
 
@@ -45,59 +42,78 @@ class ABM:
 
 
     def step(self) -> None:
-        # Advance simulation by one day
+        # Unified daily update pipeline
+        # DO NOT override this method in subclasses
+        # Instead override phase-specific methods below
 
-        # PHASES:
-        # 1) Infectious agents form contacts & mark new infections
-        # 2) Apply new infections (batch update for correctness)
-        # 3) Update infection timers, recover those who expire
-        # 4) Log daily summary
+        # Phase 1: Infectious agents form contacts & mark new infections
+        new_infections = self._collect_infections()
 
-        # phase 1: collect candidates for new infection
+        # Phase 2: Apply new infections (batch update for correctness)
+        self._apply_infections(new_infections)
+
+        # Phase 3: Update infection timers, recover those who expire
+        self._progress_states()
+        
+        # Phase 4: Log daily summary
+        self._log_states()
+    
+        self.day += 1
+
+
+    # === PHASE 1 ===
+    def _collect_infections(self) -> list[int]:
+        # Determine which agents become infected today
+        # Default implementation = well-mixed SIR
+        # Override for network-based or SEIR/SEIAR logic
+        
         newly_exposed: list[int] = []
 
         for i, agent in enumerate(self.agents):
             if not agent.is_infectious:
                 continue
-
             # each infectious agent makes K contacts
             for _ in range(self.cfg.contacts_per_day):
                 j = random.randrange(self.cfg.N)
                 target = self.agents[j]
-
                 # attempt infection
-                if target.is_susceptible and random.random() < self.cfg.p_trans:
+                if target.is_susceptible and random.random() < self.cfg.p_infect:
                     newly_exposed.append(j)
 
-        # phase 2: apply new infections (batch)
-        for idx in newly_exposed:
-            tgt = self.agents[idx]
-            if tgt.is_susceptible:  # re-check safety
-                tgt.state = Agent.INF
-                tgt.days_infected = 0
+        return newly_exposed
 
-        # phase 3: update timers & recover
-        for ag in self.agents:
-            if ag.is_infectious:
-                ag.days_infected += 1
-                if ag.days_infected >= self.cfg.infectious_days:
-                    ag.state = Agent.REC
 
-        # phase 4: log S/I/R counts
-        S_count = sum(1 for a in self.agents if a.is_susceptible)
-        I_count = sum(1 for a in self.agents if a.is_infectious)
-        R_count = sum(1 for a in self.agents if a.state == Agent.REC)
-    
-        self.daily_S.append(S_count)
-        self.daily_I.append(I_count)
-        self.daily_R.append(R_count)
+    # === PHASE 2 ===
+    def _apply_infections(self, infected_indices: list[int]) -> None:
+        # Apply new infections (batch update)
+        # Subclasses may override to support exposed/incubation states
         
-        self.day += 1
+        for idx in infected_indices:
+            self.agents[idx].infect()
+    
+
+    # === PHASE 3 ===
+    def _progress_states(self) -> None:
+        # Update disease progression
+        # Subclasses may override for SEIR, SEIAR, waning immunity, vaccination, etc
+        
+        for ag in self.agents:
+            ag.progress()
+
+    # === PHASE 4 ===
+    def _log_states(self) -> None:
+        # Record S/I/R counts for plotting
+        # Subclasses may override to include E, IA, IS, D, V, etc
+
+        states = [a.state for a in self.agents]
+        self.history["S"].append(states.count(Agent.S))
+        self.history["I"].append(states.count(Agent.I))
+        self.history["R"].append(states.count(Agent.R))
 
 
+    # =================================
     def run(self, days: int = 67):
         # Run simulation for a fixed number of days
-        # Returns Time Series of infectious counts
 
         for _ in range(days):
             self.step()
