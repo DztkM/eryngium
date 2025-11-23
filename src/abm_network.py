@@ -53,17 +53,11 @@ class ABMNetwork(ABM):
         
         return G
     
+    
+    # === PHASE 1 ===
+    def _collect_infections(self) -> list[int]:
+        # Determine which agents become infected today
 
-    def step(self) -> None:
-        # Advance simulation one day with network-based transmission
-
-        # PHASES:
-        # 1) Infectious agents randomly choose neighbors to attempt infection
-        # 2) Newly infected are updated simultaneously (batch update)
-        # 3) Infection timers increment; agents exceeding infectious_days recover
-        # 4) Record S/I/R counts
-
-        # phase 1: collect candidates for new infection
         newly_exposed: list[int] = []
         
         for i, agent in enumerate(self.agents):
@@ -82,33 +76,16 @@ class ABMNetwork(ABM):
             # Attempt infection on each contacted neighbor
             for j in contacts:
                 target = self.agents[j]
-                if target.is_susceptible and random.random() < self.cfg.p_trans:
+                # attempt infection
+                if target.is_susceptible and random.random() < self.cfg.p_infect:
                     newly_exposed.append(j)
-
-        # phase 2: apply new infections (batch)
-        for idx in newly_exposed:
-            tgt = self.agents[idx]
-            if tgt.is_susceptible: # re-check safety
-                tgt.state = Agent.INF
-                tgt.days_infected = 0
         
-        # phase 3: update timers & recover
-        for ag in self.agents:
-            if ag.is_infectious:
-                ag.days_infected += 1
-                if ag.days_infected >= self.cfg.infectious_days:
-                    ag.state = Agent.REC
-        
-        # phase 4: log S/I/R counts
-        S_count = sum(1 for a in self.agents if a.is_susceptible)
-        I_count = sum(1 for a in self.agents if a.is_infectious)
-        R_count = sum(1 for a in self.agents if a.state == Agent.REC)
-    
-        self.daily_S.append(S_count)
-        self.daily_I.append(I_count)
-        self.daily_R.append(R_count)
+        return newly_exposed
 
-        # record current node states
+
+    # === PHASE 4 ===
+    def _log_states(self) -> None:
+        super()._log_states()
+        
+        # Record current node states
         self.history_states.append([a.state for a in self.agents])
-        
-        self.day += 1
