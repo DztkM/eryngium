@@ -1,11 +1,11 @@
-import numpy as np
-# from model_config import ModelConfig
 from config import Config
 from abm import ABM
 from abm_network import ABMNetwork
+from seird.config_seird import ConfigSEIRD 
+from seird.abm_network_seird import ABMNetworkSEIRD
 from seiard.config_seiard import ConfigSEIARD
-from seiard.abm_network_seiard import ABMNetworkSEIARD 
-from visualization import plot_sir, plot_seiard, plot_network, animate_network_spread
+from seiard.abm_network_seiard import ABMNetworkSEIARD
+from visualization import plot_sir, plot_seird, plot_seiard, plot_network, animate_network_spread
 
 def ex_sir_1():
     cfg = Config(
@@ -34,6 +34,27 @@ def ex_sirnetwork_1():
 
     ani = animate_network_spread(model_net, interval=200)
     ani.save("sir_network_spread.gif", writer="pillow", fps=5)
+
+
+def ex_seird_network_1():
+    cfg = ConfigSEIRD(
+        N=1500,
+        I0=50,
+        contacts_per_day=15, 
+        seed=42,
+    )
+    model_seird = ABMNetworkSEIRD(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
+    # Run model
+    model_seird.run(days=64)
+
+    plot_seird(model_seird.history)
+
+    # Plot final network state
+    agent_states = [a.state for a in model_seird.agents]
+    plot_network(model_seird.G, agent_states, model_type="SEIRD")
+
+    ani = animate_network_spread(model_seird, interval=200, model_type="SEIRD")
+    ani.save("seird_network_spread.gif", writer="pillow", fps=1)
 
 
 def ex_seiard_network_1():
