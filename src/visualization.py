@@ -29,6 +29,32 @@ def plot_sir(time_series: dict[str, np.ndarray]) -> None:
     plt.show()
 
 
+def plot_seird(history: Dict[str, list[int]]):
+    # Plot SEIR-D curves
+
+    labels = {
+        "S": "Susceptible",
+        "E": "Exposed",
+        "I": "Infectious",
+        "R": "Recovered",
+        "D": "Dead",
+    }
+    plt.figure(figsize=(8, 5))
+    colors = {
+        "S": "lightblue", "E": "orange", "I": "red", "R": "green", "D": "black"
+    }
+    for k, data in history.items():
+        plt.plot(data, color=colors[k], label=labels[k])
+    plt.xlabel("Day")
+    plt.ylabel("Individuals")
+    plt.title("Network-based SEIR-D ABM Time Series")
+    plt.legend()
+    plt.grid(True, linestyle="--", alpha=0.5)
+    plt.tight_layout()
+    plt.show()
+
+
+
 def plot_seiard(history: Dict[str, list[int]]):
     # Plot SEIAR-D curves
 
@@ -78,9 +104,13 @@ def plot_network(G, agent_states=None, figsize=(6, 6), model_type = "SIR"):
         # map S/I/R -> colors
         color_map = {0: "lightblue", 1: "red", 2: "green"}
         colors = [color_map[s] for s in agent_states]
+    elif model_type =="SEIRD" or model_type =="SEIR":
+        color_map = {0: "lightblue", 1: "orange", 2: "red",
+            3: "green", 4: "black"}
+        colors = [color_map[s] for s in agent_states]
     elif model_type =="SEIARD" or model_type =="SEIAR":
         color_map = {0: "lightblue", 1: "orange", 2: "purple",
-        3: "red", 4: "green", 5: "black"}
+            3: "red", 4: "green", 5: "black"}
         colors = [color_map[s] for s in agent_states]
     else:
         raise ValueError(
@@ -119,12 +149,15 @@ def animate_network_spread(model, interval=300, figsize=(6,6), model_type = "SIR
 
     # Color map
     color_map = {}
-    if model_type == "SIR":
+    if model_type == "SIRD" or model_type == "SIR":
         # map S/I/R -> colors
-        color_map = {0: "lightblue", 1: "red", 2: "green"}
+        color_map = {0: "lightblue", 1: "red", 2: "green", 3: "black"}
+    elif model_type =="SEIRD" or model_type =="SEIR":
+        color_map = {0: "lightblue", 1: "orange", 2: "red",
+            3: "green", 4: "black"}
     elif model_type =="SEIARD" or model_type =="SEIAR":
         color_map = {0: "lightblue", 1: "orange", 2: "purple",
-        3: "red", 4: "green", 5: "black"}
+            3: "red", 4: "green", 5: "black"}
     else:
         raise ValueError(
             "Unknown `model_type`"
