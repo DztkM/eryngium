@@ -4,10 +4,12 @@ import numpy as np
 
 from model_config import ModelConfig
 from agent import Agent
-
+from intervention.interventions import InterventionManager
 
 class ABM:
     # Main agent‑based simulation engine
+    # with automatic early termination
+    # and intervention support
 
     # Responsibilities:
     # - Create population of Agent objects
@@ -17,7 +19,7 @@ class ABM:
     # Notes:
     # - Uses random mixing (well‑mixed population) by default
 
-    def __init__(self, cfg: ModelConfig):
+    def __init__(self, cfg: ModelConfig, interventions=None):
         self.cfg = cfg
         self._init_rng()
 
@@ -34,6 +36,12 @@ class ABM:
         
         self.day: int = 0
         self.finished = False
+
+        # Interventions
+        self.interventions = InterventionManager(interventions)
+
+        # Dynamic parameter (modifiable by lockdown etc.)
+        self.current_contacts_per_day = cfg.contacts_per_day
     
 
     def _init_rng(self) -> None:
@@ -52,7 +60,10 @@ class ABM:
         #   True  = continue simulation
         #   False = terminated early
 
-        # Phase 0: Termination check
+        # PHASE 0: interventions (modify parameters before the day begins)
+        self.interventions.apply(self)
+
+        # Phase 0.5: Termination check
         if not self._should_continue():
             self._on_termination()
             return False
@@ -71,8 +82,9 @@ class ABM:
 
         self.day += 1
         return True
+    
 
-    # === PHASE 0 ===
+    # === PHASE 0.5 ===
     def _should_continue(self) -> bool:
         # Check if epidemic is still active
         # Default behavior: stop when no infected remain
@@ -102,7 +114,7 @@ class ABM:
             if not agent.is_infectious:
                 continue
             # each infectious agent makes K contacts
-            for _ in range(self.cfg.contacts_per_day):
+            for _ in range(self.current_contacts_per_day):
                 j = random.randrange(self.cfg.N)
                 target = self.agents[j]
                 # attempt infection
