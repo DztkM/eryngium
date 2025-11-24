@@ -2,7 +2,6 @@ import random
 from typing import List
 import numpy as np
 import networkx as nx
-from numba.core.types import Boolean
 
 from abm import ABM
 from model_config import ModelConfig

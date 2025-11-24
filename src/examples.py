@@ -37,7 +37,7 @@ def ex_sirnetwork_1():
 
 
 def ex_seiard_network_1():
-    cfg = ConfigSEIAR(
+    cfg = ConfigSEIARD(
         N=1500,
         I0=50,
         contacts_per_day=15, 
