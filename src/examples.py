@@ -37,14 +37,15 @@ def ex_sirnetwork_1():
 
 
 def ex_seiard_network_1():
-    cfg = ConfigSEIARD(
-        N=300,
-        I0=5,
-        contacts_per_day=8, 
+    cfg = ConfigSEIAR(
+        N=1500,
+        I0=50,
+        contacts_per_day=15, 
+        seed=42,
     )
     model_seiard = ABMNetworkSEIARD(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
     # Run model
-    model_seiard.run(days=32)
+    model_seiard.run(days=64)
 
 
     plot_seiard(model_seiard.history)

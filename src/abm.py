@@ -69,6 +69,11 @@ class ABM:
         
         newly_exposed: list[int] = []
 
+        # check if anybody is exposed or infected otherwise end simulation
+        if not any(a.state in Agent.INF for a in self.agents):
+            print(f"Nobody infected or exposed. terminating simulation on day {self.day}")
+            return False
+
         for i, agent in enumerate(self.agents):
             if not agent.is_infectious:
                 continue
