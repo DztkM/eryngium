@@ -39,7 +39,6 @@ class ABMNetworkSEIARD(ABMNetwork):
     def _should_continue(self) -> bool:
         # Check if epidemic is still active
         # Default behavior: stop when no infected remain
-        # Subclasses may override, e.g., to include 'E' state
 
         any_infected = any(a.state in [AgentSEIARD.E, AgentSEIARD.IA, AgentSEIARD.IS] for a in self.agents)
         return any_infected
