@@ -28,7 +28,7 @@ It is designed to be extensible rather than final.
 - Create classical SIRD ABM (to compare results)
 - (DONE) classical SEIRD ABM (to compare results)
 - Add Age structure
-- Add Interventions: lockdown, school closure, masks
+- (50% DONE) Add Interventions: lockdown, school closure, masks
 - GUI application?
 
 ## How To Run:
