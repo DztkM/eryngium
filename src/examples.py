@@ -6,6 +6,7 @@ from seird.abm_network_seird import ABMNetworkSEIRD
 from seiard.config_seiard import ConfigSEIARD
 from seiard.abm_network_seiard import ABMNetworkSEIARD
 from visualization import plot_sir, plot_seird, plot_seiard, plot_network, animate_network_spread
+from intervention.interventions_examples import Lockdown
 
 def ex_sir_1():
     cfg = Config(
@@ -24,16 +25,17 @@ def ex_sirnetwork_1():
 
     model_net = ABMNetwork(cfg, network_type="watts_strogatz", k=10, beta=0.1)
     # Run model
-    model_net.run(days=50)
+    model_net.run(days=60)
 
-    plot_sir(model_net.history)
+    fig = plot_sir(model_net.history)
+    fig.savefig("sir_network.png", dpi=300)
 
     # Plot final network state
     agent_states = [a.state for a in model_net.agents]
     plot_network(model_net.G, agent_states)
 
     ani = animate_network_spread(model_net, interval=200)
-    ani.save("sir_network_spread.gif", writer="pillow", fps=5)
+    ani.save("sir_network_spread.gif", writer="pillow", fps=1)
 
 
 def ex_seird_network_1():
@@ -77,3 +79,29 @@ def ex_seiard_network_1():
 
     ani = animate_network_spread(model_seiard, interval=200, model_type="SEIARD")
     ani.save("seiard_network_spread.gif", writer="pillow", fps=1)
+
+
+def ex_interventions_sirnetwork_1():
+    cfg = Config(
+        seed=42
+    )
+    interventions = [
+            Lockdown(start_day=8, end_day=15, reduction_factor=0.5),
+        ]
+
+    model_net = ABMNetwork(cfg, interventions=interventions, network_type="watts_strogatz", k=10, beta=0.1)
+    # Run model
+    model_net.run(days=60)
+
+    fig = plot_sir(model_net.history)
+    fig.savefig("interventions_sir_network.png", dpi=300)
+
+    # Plot final network state
+    agent_states = [a.state for a in model_net.agents]
+    plot_network(model_net.G, agent_states)
+
+    ani = animate_network_spread(model_net, interval=200)
+    ani.save("interventions_sir_network_spread.gif", writer="pillow", fps=1)
+
+
+    
