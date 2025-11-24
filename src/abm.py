@@ -31,7 +31,9 @@ class ABM:
 
         # Time-series tracking (store S/I/R counts per day)
         self.history: Dict[str, list[int]] = {k: [] for k in ["S", "I", "R"]}
+        
         self.day: int = 0
+        self.finished = False
     
 
     def _init_rng(self) -> None:
@@ -41,10 +43,19 @@ class ABM:
             np.random.seed(self.cfg.seed)
 
 
-    def step(self) -> None:
+    def step(self) -> bool:
         # Unified daily update pipeline
         # DO NOT override this method in subclasses
         # Instead override phase-specific methods below
+        # 
+        # Returns:
+        #   True  = continue simulation
+        #   False = terminated early
+
+        # Phase 0: Termination check
+        if not self._should_continue():
+            self._on_termination()
+            return False
 
         # Phase 1: Infectious agents form contacts & mark new infections
         new_infections = self._collect_infections()
@@ -57,8 +68,26 @@ class ABM:
         
         # Phase 4: Log daily summary
         self._log_states()
-    
+
         self.day += 1
+        return True
+
+    # === PHASE 0 ===
+    def _should_continue(self) -> bool:
+        # Check if epidemic is still active
+        # Default behavior: stop when no infected remain
+        # Subclasses may override, e.g., to include 'E' state
+
+        any_infected = any(a.is_infectious for a in self.agents)
+        return any_infected
+
+
+    def _on_termination(self):
+        # Optional hook executed when simulation stops early
+        # Subclasses may override (e.g., to log results)
+
+        self.finished = True
+        print(f"Nobody infected. Terminating simulation on day {self.day}.")
 
 
     # === PHASE 1 ===
@@ -110,10 +139,21 @@ class ABM:
         self.history["I"].append(states.count(Agent.I))
         self.history["R"].append(states.count(Agent.R))
 
+    # === PHASE 4 ===
+    def _log_states(self) -> None:
+        # Record S/I/R counts for plotting
+        # Subclasses may override to include E, IA, IS, D, V, etc
+
+        states = [a.state for a in self.agents]
+        self.history["S"].append(states.count(Agent.S))
+        self.history["I"].append(states.count(Agent.I))
+        self.history["R"].append(states.count(Agent.R))
+
 
     # =================================
     def run(self, days: int = 67):
         # Run simulation for a fixed number of days
 
         for _ in range(days):
-            self.step()
+            if not self.step():
+                break

@@ -30,7 +30,19 @@ class ABMNetworkSEIARD(ABMNetwork):
         # Time-series tracking (store S/E/IA/IS/R/D counts per day)
         self.history: Dict[str, list[int]] = {k: [] for k in ["S", "E", "IA", "IS", "R", "D"]}
         self.history_states: list[list[int]] = [] # stores list of agent states each day
+        
         self.day: int = 0
+        self.finished = False
+
+
+    # === PHASE 0 ===
+    def _should_continue(self) -> bool:
+        # Check if epidemic is still active
+        # Default behavior: stop when no infected remain
+        # Subclasses may override, e.g., to include 'E' state
+
+        any_infected = any(a.state in [AgentSEIARD.E, AgentSEIARD.IA, AgentSEIARD.IS] for a in self.agents)
+        return any_infected
 
 
     # === PHASE 1 ===
