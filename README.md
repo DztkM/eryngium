@@ -26,7 +26,7 @@ It is designed to be extensible rather than final.
 - (DONE) Contact graph (networkx)
 - (DONE) Create SEIARD ABM
 - Create classical SIRD ABM (to compare results)
-- Create classical SEIRD ABM (to compare results)
+- (DONE) classical SEIRD ABM (to compare results)
 - Add Age structure
 - Add Interventions: lockdown, school closure, masks
 - GUI application?
