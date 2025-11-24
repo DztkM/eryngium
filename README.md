@@ -25,7 +25,6 @@ It is designed to be extensible rather than final.
 ## Planned extensions (TODO): 
 - (DONE) Contact graph (networkx)
 - (DONE) Create SEIARD ABM
-- Return back functionality to stop simulation when there are no infected agents left  
 - Create classical SIRD ABM (to compare results)
 - Create classical SEIRD ABM (to compare results)
 - Add Age structure
