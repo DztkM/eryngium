@@ -20,63 +20,53 @@ class ABMNetworkSEIAR(ABMNetwork):
         # Infect I0 randomly
         initial_I = random.sample(range(cfg.N), cfg.I0)
         for idx in initial_I:
-            self.agents[idx].state = AgentSEIAR.INF
-
-        self.day: int = 0
-
+            self.agents[idx].state = AgentSEIAR.E
+        
         self.cfg = cfg
         self.network_type = network_type
         self.net_params = net_params
         self.G = self._create_network()
 
-        # Initialize agents
-        # self.agents: List[AgentSEIAR] = [AgentSEIAR(i, cfg) for i in range(cfg.N)]
-        # for i in random.sample(range(cfg.N), cfg.I0):
-        #     self.agents[i].infect()
-
-        # Tracking
+        # Time-series tracking (store S/E/IA/IS/R/D counts per day)
         self.history: Dict[str, list[int]] = {k: [] for k in ["S", "E", "IA", "IS", "R", "D"]}
         self.history_states: list[list[int]] = [] # stores list of agent states each day
-    
+        self.day: int = 0
 
-    def step(self):
-        # Advance simulation by one day
 
-        # new_exposed = set()
+    # === PHASE 1 ===
+    def _collect_infections(self) -> list[int]:
+        # Determine which agents become infected today
+
         newly_exposed: list[int] = []
-
-        # phase 1: collect candidates for new infection
+        
         for i, agent in enumerate(self.agents):
             if not agent.is_infectious:
                 continue
+
+            # Get neighbors of agent i in the network
             neighbors = list(self.G.neighbors(i))
             if not neighbors:
                 continue
 
+            # Choose `contacts_per_day` random neighbors to attempt contact
+            # sampling WITH replacement to simulate repeated daily contacts
             contacts = random.choices(neighbors, k=self.cfg.contacts_per_day)
 
+            # Attempt infection on each contacted neighbor
             for j in contacts:
                 target = self.agents[j]
+                # attempt infection
                 if target.is_susceptible:
                     p = (self.cfg.p_infect_IS if agent.state == AgentSEIAR.IS
                          else self.cfg.p_infect_IA)
                     if random.random() < p:
                         newly_exposed.append(j)
-
-        # phase 2: apply new infections (batch)
-        for idx in newly_exposed:
-            self.agents[idx].infect()
-
-        # phase 3: progress states
-        for agent in self.agents:
-            agent.progress()
-
-        # phase 4: log states counts
-        self._record_day()
-        self.day += 1
+        
+        return newly_exposed
 
 
-    def _record_day(self):
+    # === PHASE 4 ===
+    def _log_states(self) -> None:
         # Count all states for logging
         states = [a.state for a in self.agents]
         self.history["S"].append(states.count(AgentSEIAR.S))

@@ -18,11 +18,16 @@ class AgentSEIAR(Agent):
     S, E, IS, IA, R, D = range(6)
 
 
-    def __init__(self, params: ConfigSEIAR, vaccinated: bool = False):
-        super().__init__(state=self.R if vaccinated else self.S)
+    # def __init__(self, params: ConfigSEIAR, vaccinated: bool = False):
+    #     super().__init__(state=self.R if vaccinated else self.S)
+    #     self.params = params
+    #     self.symptomatic = False
+    #     self.days_remaining = 0
+
+    def __init__(self, params: ConfigSEIAR, state: int = S):
+        self.state: int = state
         self.params = params
-        self.symptomatic = False
-        self.days_remaining = 0
+        self.days_remaining: int = 0
 
 
     def infect(self):
@@ -36,7 +41,6 @@ class AgentSEIAR(Agent):
         # Transition from E -> IA or IS
         if random.random() < self.params.p_symptomatic:
             self.state = self.IS
-            self.symptomatic = True
             self.days_remaining = max(
                 1, int(np.random.normal(
                     self.params.inf_period_mean_IS, self.params.inf_period_std_IS
@@ -44,7 +48,6 @@ class AgentSEIAR(Agent):
             )
         else:
             self.state = self.IA
-            self.symptomatic = False
             self.days_remaining = max(
                 1, int(np.random.normal(
                     self.params.inf_period_mean_IA, self.params.inf_period_std_IA
@@ -53,7 +56,7 @@ class AgentSEIAR(Agent):
 
 
     def progress(self) -> None:
-        # Advance infection timer and update states
+        # SEIAR-D infection timer and update states
         if self.state in [self.E, self.IA, self.IS]:
             self.days_remaining -= 1
             if self.days_remaining <= 0:
