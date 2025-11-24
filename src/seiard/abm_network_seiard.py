@@ -4,23 +4,23 @@ import numpy as np
 import networkx as nx
 
 from abm_network import ABMNetwork
-from seird.config_seiar import ConfigSEIAR
-from seird.agent_seiar import AgentSEIAR  
+from seiard.config_seiard import ConfigSEIARD
+from seiard.agent_seiard import AgentSEIARD 
 
-class ABMNetworkSEIAR(ABMNetwork):
+class ABMNetworkSEIARD(ABMNetwork):
     # Network-based SEIAR-D epidemic simulator
 
-    def __init__(self, cfg: ConfigSEIAR, network_type: str = "erdos_renyi", **net_params):
+    def __init__(self, cfg: ConfigSEIARD, network_type: str = "erdos_renyi", **net_params):
         self.cfg = cfg
         self._init_rng()
 
          # Create agents (initially all susceptible)
-        self.agents: List[AgentSEIAR] = [AgentSEIAR(cfg) for _ in range(cfg.N)]
+        self.agents: List[AgentSEIARD] = [AgentSEIARD(cfg) for _ in range(cfg.N)]
 
         # Infect I0 randomly
         initial_I = random.sample(range(cfg.N), cfg.I0)
         for idx in initial_I:
-            self.agents[idx].state = AgentSEIAR.E
+            self.agents[idx].state = AgentSEIARD.E
         
         self.cfg = cfg
         self.network_type = network_type
@@ -57,7 +57,7 @@ class ABMNetworkSEIAR(ABMNetwork):
                 target = self.agents[j]
                 # attempt infection
                 if target.is_susceptible:
-                    p = (self.cfg.p_infect_IS if agent.state == AgentSEIAR.IS
+                    p = (self.cfg.p_infect_IS if agent.state == AgentSEIARD.IS
                          else self.cfg.p_infect_IA)
                     if random.random() < p:
                         newly_exposed.append(j)
@@ -69,10 +69,10 @@ class ABMNetworkSEIAR(ABMNetwork):
     def _log_states(self) -> None:
         # Count all states for logging
         states = [a.state for a in self.agents]
-        self.history["S"].append(states.count(AgentSEIAR.S))
-        self.history["E"].append(states.count(AgentSEIAR.E))
-        self.history["IA"].append(states.count(AgentSEIAR.IA))
-        self.history["IS"].append(states.count(AgentSEIAR.IS))
-        self.history["R"].append(states.count(AgentSEIAR.R))
-        self.history["D"].append(states.count(AgentSEIAR.D))
+        self.history["S"].append(states.count(AgentSEIARD.S))
+        self.history["E"].append(states.count(AgentSEIARD.E))
+        self.history["IA"].append(states.count(AgentSEIARD.IA))
+        self.history["IS"].append(states.count(AgentSEIARD.IS))
+        self.history["R"].append(states.count(AgentSEIARD.R))
+        self.history["D"].append(states.count(AgentSEIARD.D))
         self.history_states.append(states)

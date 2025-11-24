@@ -2,9 +2,9 @@ import random
 import numpy as np
 
 from agent import Agent
-from seird.config_seiar import ConfigSEIAR
+from seiard.config_seiard import ConfigSEIARD
 
-class AgentSEIAR(Agent):
+class AgentSEIARD(Agent):
     # Extended agent with SEIAR-D dynamics (inherits from base Agent)
 
     # States:
@@ -24,7 +24,7 @@ class AgentSEIAR(Agent):
     #     self.symptomatic = False
     #     self.days_remaining = 0
 
-    def __init__(self, params: ConfigSEIAR, state: int = S):
+    def __init__(self, params: ConfigSEIARD, state: int = S):
         self.state: int = state
         self.params = params
         self.days_remaining: int = 0

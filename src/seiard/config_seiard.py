@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ConfigSEIAR:
+class ConfigSEIARD:
     # Configuration container for SEIAR-D model parameters
     
     N: int = 1000

@@ -3,9 +3,8 @@ import numpy as np
 from config import Config
 from abm import ABM
 from abm_network import ABMNetwork
-from seird.config_seiar import ConfigSEIAR
-from seird.abm_network_seiar import ABMNetworkSEIAR
-# from visualization import plot_sir, plot_seiard, plot_network, animate_network_spread 
+from seiard.config_seiard import ConfigSEIARD
+from seiard.abm_network_seiard import ABMNetworkSEIARD 
 from visualization import plot_sir, plot_seiard, plot_network, animate_network_spread
 
 def ex_sir_1():
@@ -38,12 +37,12 @@ def ex_sirnetwork_1():
 
 
 def ex_seiard_network_1():
-    cfg = ConfigSEIAR(
+    cfg = ConfigSEIARD(
         N=300,
         I0=5,
         contacts_per_day=8, 
     )
-    model_seiard = ABMNetworkSEIAR(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
+    model_seiard = ABMNetworkSEIARD(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
     # Run model
     model_seiard.run(days=32)
 
