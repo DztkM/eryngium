@@ -6,7 +6,7 @@ from typing import List, Dict
 
 
 
-def plot_sir(time_series: dict[str, np.ndarray]) -> None:
+def plot_sir(time_series: dict[str, np.ndarray]):
     # Plot S(t), I(t), R(t) curves
 
     # Parameters:
@@ -17,16 +17,18 @@ def plot_sir(time_series: dict[str, np.ndarray]) -> None:
         "I": "Infectious",
         "R": "Recovered"
     }
-    plt.figure(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(8, 5))
     for k, v in time_series.items():
-        plt.plot(v, label=switcher[k])
-    plt.xlabel("Day")
-    plt.ylabel("Individuals")
-    plt.title("ABM SIR Time Series")
-    plt.legend()
-    plt.tight_layout()
-    plt.grid(True, linestyle="--", alpha=0.5)
+        ax.plot(v, label=switcher[k])
+    ax.set_xlabel("Day")
+    ax.set_ylabel("Individuals")
+    ax.set_title("ABM SIR Time Series")
+    ax.legend()
+    fig.tight_layout()
+    ax.grid(True, linestyle="--", alpha=0.5)
     plt.show()
+
+    return fig
 
 
 def plot_seird(history: Dict[str, list[int]]):
