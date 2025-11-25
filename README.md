@@ -25,11 +25,14 @@ It is designed to be extensible rather than final.
 ## Planned extensions (TODO): 
 - (DONE) Contact graph (networkx)
 - (DONE) Create SEIARD ABM
-- Create classical SIRD ABM (to compare results)
-- (DONE) classical SEIRD ABM (to compare results)
+- (DONE) Create classical SEIRD ABM (to compare results)
+- (DONE) Add Interventions module and lockdown intervention
+- (25% DONE) Add school closure and masks interventions
 - Add Age structure
-- (50% DONE) Add Interventions: lockdown, school closure, masks
-- GUI application?
+- Find real medical parameters for models
+- Compare results with scientific reports (maybe add module to compare model time_stamps with real data)
+- ??? Create classical SIRD ABM (to compare results)
+- ??? GUI application
 
 ## How To Run:
 
