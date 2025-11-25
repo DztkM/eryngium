@@ -5,24 +5,41 @@ from matplotlib.animation import FuncAnimation
 from typing import List, Dict
 
 
-
-def plot_sir(time_series: dict[str, np.ndarray]):
-    # Plot S(t), I(t), R(t) curves
-
+def plot_history(history: Dict[str, list[int]], model_type = "SIR"):
+    # Plot S(t), I(t), R(t) (and other) curves depending on the model type
+    # 
     # Parameters:
-    # time_series : dict[str, np.ndarray] (Dictionary with keys 'S', 'I', 'R')
+    # history   : dict[str, list[int]] (Dictionary with keys 'S', 'I', 'R'...)
+    # model_type    : str; ex: "SIR", "SEIR", "SEIRD", "SEIAR", "SEIARD"
+    # 
+    # Returns:
+    # plt.figure.Figure
 
-    switcher = {
-        "S": "Susceptible",
-        "I": "Infectious",
-        "R": "Recovered"
+    colors = {
+        "S": "lightblue", 
+        "E": "orange", 
+        "IA": "purple",
+        "IS": "red",
+        "I": "red", 
+        "R": "green", 
+        "D": "black"
     }
+    labels = {
+        "S": "Susceptible",
+        "E": "Exposed",
+        "IA": "Infectious Asymptomatic",
+        "IS": "Infectious Symptomatic",
+        "I": "Infectious",
+        "R": "Recovered",
+        "D": "Dead",
+    }
+
     fig, ax = plt.subplots(figsize=(8, 5))
-    for k, v in time_series.items():
-        ax.plot(v, label=switcher[k])
+    for k, data in history.items():
+        plt.plot(data, color=colors[k], label=labels[k])
     ax.set_xlabel("Day")
     ax.set_ylabel("Individuals")
-    ax.set_title("ABM SIR Time Series")
+    ax.set_title(f"ABM {model_type} Time Series")
     ax.legend()
     fig.tight_layout()
     ax.grid(True, linestyle="--", alpha=0.5)
@@ -31,68 +48,13 @@ def plot_sir(time_series: dict[str, np.ndarray]):
     return fig
 
 
-def plot_seird(history: Dict[str, list[int]]):
-    # Plot SEIR-D curves
-
-    labels = {
-        "S": "Susceptible",
-        "E": "Exposed",
-        "I": "Infectious",
-        "R": "Recovered",
-        "D": "Dead",
-    }
-    plt.figure(figsize=(8, 5))
-    colors = {
-        "S": "lightblue", "E": "orange", "I": "red", "R": "green", "D": "black"
-    }
-    for k, data in history.items():
-        plt.plot(data, color=colors[k], label=labels[k])
-    plt.xlabel("Day")
-    plt.ylabel("Individuals")
-    plt.title("Network-based SEIR-D ABM Time Series")
-    plt.legend()
-    plt.grid(True, linestyle="--", alpha=0.5)
-    plt.tight_layout()
-    plt.show()
-
-
-
-def plot_seiard(history: Dict[str, list[int]]):
-    # Plot SEIAR-D curves
-
-    labels = {
-        "S": "Susceptible",
-        "E": "Exposed",
-        "IA": "Infectious Asymptomatic",
-        "IS": "Infectious Symptomatic",
-        "R": "Recovered",
-        "D": "Dead",
-    }
-    plt.figure(figsize=(8, 5))
-    colors = {
-        "S": "lightblue", "E": "orange", "IA": "purple",
-        "IS": "red", "R": "green", "D": "black"
-    }
-    for k, data in history.items():
-        plt.plot(data, color=colors[k], label=labels[k])
-    plt.xlabel("Day")
-    plt.ylabel("Individuals")
-    plt.title("Network-based SEIAR-D ABM Time Series")
-    plt.legend()
-    plt.grid(True, linestyle="--", alpha=0.5)
-    plt.tight_layout()
-    plt.show()
-
-
 def plot_network(G, agent_states=None, figsize=(6, 6), model_type = "SIR"):
     # Draw contact network using spring-layout
 
     # Parameters:
     # G : networkx.Graph (Contact graph)
     # agent_states : list[int] | None
-    #   Optional list of SIR states to color nodes:
-    #   0=SUSC (blue), 1=INF (red), 2=REC (green)
-    #   If None → all nodes same color
+    #   if None -> all nodes with the same color
 
     plt.figure(figsize=figsize)
 
@@ -100,17 +62,19 @@ def plot_network(G, agent_states=None, figsize=(6, 6), model_type = "SIR"):
     pos = nx.spring_layout(G, seed=42)
 
     if agent_states is None:
-        # all nodes one color
+        # all nodes with the same color
         colors = "lightblue"
     elif model_type == "SIR":
         # map S/I/R -> colors
         color_map = {0: "lightblue", 1: "red", 2: "green"}
         colors = [color_map[s] for s in agent_states]
     elif model_type =="SEIRD" or model_type =="SEIR":
+        # map S/E/I/R/D -> colors
         color_map = {0: "lightblue", 1: "orange", 2: "red",
             3: "green", 4: "black"}
         colors = [color_map[s] for s in agent_states]
     elif model_type =="SEIARD" or model_type =="SEIAR":
+        # map S/E/IA/IS/R/D -> colors
         color_map = {0: "lightblue", 1: "orange", 2: "purple",
             3: "red", 4: "green", 5: "black"}
         colors = [color_map[s] for s in agent_states]
@@ -119,12 +83,12 @@ def plot_network(G, agent_states=None, figsize=(6, 6), model_type = "SIR"):
             "Unknown `model_type`"
         )
 
-    nx.draw(G, pos, node_color=colors, node_size=50, with_labels=False)
+    nx.draw(G, pos, node_color=colors, node_size=42, with_labels=False)
     plt.show()
 
 
 def animate_network_spread(model, interval=300, figsize=(6,6), model_type = "SIR"):
-    # Animate the SIR spread on the model's network.
+    # Animate infection spread on the model's network.
 
     # Parameters:
     # model : ABMNetwork
