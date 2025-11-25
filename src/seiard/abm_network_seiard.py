@@ -7,10 +7,12 @@ from abm_network import ABMNetwork
 from seiard.config_seiard import ConfigSEIARD
 from seiard.agent_seiard import AgentSEIARD 
 
+from intervention.interventions import InterventionManager
+
 class ABMNetworkSEIARD(ABMNetwork):
     # Network-based SEIAR-D epidemic simulator
 
-    def __init__(self, cfg: ConfigSEIARD, network_type: str = "erdos_renyi", **net_params):
+    def __init__(self, cfg: ConfigSEIARD, interventions=None, network_type: str = "erdos_renyi", **net_params):
         self.cfg = cfg
         self._init_rng()
 
@@ -33,6 +35,12 @@ class ABMNetworkSEIARD(ABMNetwork):
         
         self.day: int = 0
         self.finished = False
+
+        # Interventions
+        self.interventions = InterventionManager(interventions)
+
+        # Dynamic parameter (modifiable by lockdown etc.)
+        self.current_contacts_per_day = cfg.contacts_per_day
 
 
     # === PHASE 0 ===
@@ -59,9 +67,9 @@ class ABMNetworkSEIARD(ABMNetwork):
             if not neighbors:
                 continue
 
-            # Choose `contacts_per_day` random neighbors to attempt contact
+            # Choose `current_contacts_per_day` random neighbors to attempt contact
             # sampling WITH replacement to simulate repeated daily contacts
-            contacts = random.choices(neighbors, k=self.cfg.contacts_per_day)
+            contacts = random.choices(neighbors, k=self.current_contacts_per_day)
 
             # Attempt infection on each contacted neighbor
             for j in contacts:

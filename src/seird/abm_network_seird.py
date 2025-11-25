@@ -7,10 +7,12 @@ from abm_network import ABMNetwork
 from seird.config_seird import ConfigSEIRD
 from seird.agent_seird import AgentSEIRD
 
+from intervention.interventions import InterventionManager
+
 class ABMNetworkSEIRD(ABMNetwork):
     # Network-based SEIAR-D epidemic simulator
 
-    def __init__(self, cfg: ConfigSEIRD, network_type: str = "erdos_renyi", **net_params):
+    def __init__(self, cfg: ConfigSEIRD, interventions=None, network_type: str = "erdos_renyi", **net_params):
         self.cfg = cfg
         self._init_rng()
 
@@ -33,6 +35,12 @@ class ABMNetworkSEIRD(ABMNetwork):
         
         self.day: int = 0
         self.finished = False
+
+        # Interventions
+        self.interventions = InterventionManager(interventions)
+
+        # Dynamic parameter (modifiable by lockdown etc.)
+        self.current_contacts_per_day = cfg.contacts_per_day
 
 
     # === PHASE 0 ===
