@@ -6,7 +6,7 @@ from seird.abm_network_seird import ABMNetworkSEIRD
 from seiard.config_seiard import ConfigSEIARD
 from seiard.abm_network_seiard import ABMNetworkSEIARD
 from visualization import plot_history, plot_network, animate_network_spread
-from intervention.interventions_examples import Lockdown, Masks
+from intervention.interventions_examples import Lockdown, Masks, Vaccines
 
 
 def ex_sir_1():
@@ -212,3 +212,26 @@ def ex_interventions_seiard_2():
     # Animate infection spread:
     ani = animate_network_spread(model_seiard, interval=200, model_type="SEIARD")
     ani.save("img/masks_intervention_seiard_spread.gif", writer="pillow", fps=1)
+
+
+def ex_interventions_vaccines_seiard_2():
+    cfg = ConfigSEIARD(
+        N=1500,
+        I0=50,
+        seed=42,
+    )
+    interventions = [
+        Vaccines(start_day=20, end_day=27, daily_vaccines=0.2, compliance=0.8, efficacy=0.93)
+    ]
+
+    model_seiard = ABMNetworkSEIARD(cfg, interventions=interventions, network_type="watts_strogatz", k=10, beta=0.1, )
+    # Run model
+    model_seiard.run(days=64)
+
+    # plot_seiard(model_seiard.history)
+    fig = plot_history(model_seiard.history, "SEIARD (+vaccines)")
+    fig.savefig("img/vaccines_intervention_seiard.png", dpi=300)
+
+    # Animate infection spread:
+    ani = animate_network_spread(model_seiard, interval=200, model_type="SEIARD")
+    ani.save("img/vaccines_intervention_seiard_spread.gif", writer="pillow", fps=1)

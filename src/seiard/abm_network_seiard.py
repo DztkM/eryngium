@@ -80,7 +80,7 @@ class ABMNetworkSEIARD(ABMNetwork):
             for j in contacts:
                 target = self.agents[j]
                 # attempt infection
-                if target.is_susceptible:
+                if target.is_susceptible and not target.vaccinated:
                     p = (self.cfg.p_infect_IS if agent.state == AgentSEIARD.IS
                          else self.cfg.p_infect_IA)
                     sus_factor = self.cfg.susceptibility_by_group[target.age_group]
