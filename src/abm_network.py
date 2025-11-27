@@ -71,7 +71,7 @@ class ABMNetwork(ABM):
 
             # Choose `contacts_per_day` random neighbors to attempt contact
             # sampling WITH replacement to simulate repeated daily contacts
-            contacts = random.choices(neighbors, k=self.current_contacts_per_day)
+            contacts = random.choices(neighbors, k=self.current_contacts_by_group[agent.age_group])
 
             # Attempt infection on each contacted neighbor
             for j in contacts:
@@ -80,6 +80,8 @@ class ABMNetwork(ABM):
                 # attempt infection
                 if target.is_susceptible:
                     p = self.cfg.p_infect
+                    sus_factor = self.cfg.susceptibility_by_group[target.age_group]
+                    p *= sus_factor
                     p *= (1-agent.mask_eff)
                     if random.random() < p:
                         newly_exposed.append(j)

@@ -16,8 +16,13 @@ class ABMNetworkSEIRD(ABMNetwork):
         self.cfg = cfg
         self._init_rng()
 
-         # Create agents (initially all susceptible)
-        self.agents: List[AgentSEIRD] = [AgentSEIRD(cfg) for _ in range(cfg.N)]
+        # Create agents (initially all susceptible)
+        # # #self.agents: List[AgentSEIRD] = [AgentSEIRD(cfg) for _ in range(cfg.N)]
+        age_assignments = self._assign_age_groups()
+        self.agents = [
+            AgentSEIRD(cfg, age_group=age_assignments[i])
+            for i in range(self.cfg.N)
+        ]
 
         # Infect I0 randomly
         initial_I = random.sample(range(cfg.N), cfg.I0)
@@ -40,7 +45,7 @@ class ABMNetworkSEIRD(ABMNetwork):
         self.interventions = InterventionManager(interventions)
 
         # Dynamic parameter (modifiable by lockdown etc.)
-        self.current_contacts_per_day = cfg.contacts_per_day
+        self.current_contacts_by_group = cfg.contacts_by_group
 
 
     # === PHASE 0 ===

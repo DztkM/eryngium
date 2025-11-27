@@ -12,11 +12,12 @@ class Lockdown(Intervention):
 
     def apply(self, model):
         if self.start_day <= model.day <= self.end_day:
-            model.current_contacts_per_day = int(
-                model.cfg.contacts_per_day * self.reduction_factor
-            )
+            model.current_contacts_by_group = {
+                group: int(base_contacts * self.reduction_factor)
+                for group, base_contacts in model.cfg.contacts_by_group.items()
+            }
         else:
-            model.current_contacts_per_day = model.cfg.contacts_per_day
+            model.current_contacts_by_group = dict(model.cfg.contacts_by_group)
 
 
 class Masks(Intervention):

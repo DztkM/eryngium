@@ -18,11 +18,12 @@ class AgentSEIARD(Agent):
     S, E, IS, IA, R, D = range(6)
 
 
-    def __init__(self, params: ConfigSEIARD, state: int = S):
+    def __init__(self, params: ConfigSEIARD, state: int = S, age_group: str = "adult"):
         self.state: int = state
         self.params = params
         self.days_remaining: int = 0
         self.mask_eff = 0
+        self.age_group = age_group
 
 
     def infect(self):
@@ -59,7 +60,7 @@ class AgentSEIARD(Agent):
                     self.become_infectious()
                 elif self.state in [self.IA, self.IS]:
                     # recovery or death
-                    if random.random() < self.params.mortality_rate:
+                    if random.random() < self.params.mortality_by_group[self.age_group]:
                         self.state = self.D
                     else:
                         self.state = self.R
