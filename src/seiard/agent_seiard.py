@@ -23,6 +23,7 @@ class AgentSEIARD(Agent):
         self.params = params
         self.days_remaining: int = 0
         self.mask_eff = 0
+        self.vaccinated = False
 
 
     def infect(self):

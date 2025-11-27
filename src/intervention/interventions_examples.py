@@ -39,3 +39,22 @@ class Masks(Intervention):
                 a.mask_eff = self.efficacy
             else:
                 a.mask_eff = 0.0
+
+class Vaccines(Intervention):
+    def __init__(self, start_day, end_day, daily_vaccines, compliance, efficacy):
+        self.start_day = start_day
+        self.end_day = end_day
+        self.daily_vaccines = daily_vaccines
+        self.compliance = compliance
+        self.efficacy = efficacy
+
+
+
+    def apply(self, model):
+
+        if self.start_day <= model.day < self.end_day:
+            for a in model.agents:
+                if a.is_susceptible and random.random() < self.daily_vaccines:
+                    if random.random() < self.compliance:
+                        if random.random() < self.efficacy:
+                            a.vaccinated = True
