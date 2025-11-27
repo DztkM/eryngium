@@ -3,7 +3,27 @@ import numpy as np
 import networkx as nx
 from matplotlib.animation import FuncAnimation
 from typing import List, Dict
+import matplotlib.patches as mpatches
 
+COLORS = {
+    "S": "lightblue", 
+    "E": "orange", 
+    "IA": "purple",
+    "IS": "red",
+    "I": "red", 
+    "R": "green", 
+    "D": "black"
+}
+
+LABELS = {
+    "S": "Susceptible",
+    "E": "Exposed",
+    "IA": "Infectious Asymptomatic",
+    "IS": "Infectious Symptomatic",
+    "I": "Infectious",
+    "R": "Recovered",
+    "D": "Dead",
+}
 
 def plot_history(history: Dict[str, list[int]], model_type = "SIR"):
     # Plot S(t), I(t), R(t) (and other) curves depending on the model type
@@ -15,28 +35,9 @@ def plot_history(history: Dict[str, list[int]], model_type = "SIR"):
     # Returns:
     # plt.figure.Figure
 
-    colors = {
-        "S": "lightblue", 
-        "E": "orange", 
-        "IA": "purple",
-        "IS": "red",
-        "I": "red", 
-        "R": "green", 
-        "D": "black"
-    }
-    labels = {
-        "S": "Susceptible",
-        "E": "Exposed",
-        "IA": "Infectious Asymptomatic",
-        "IS": "Infectious Symptomatic",
-        "I": "Infectious",
-        "R": "Recovered",
-        "D": "Dead",
-    }
-
     fig, ax = plt.subplots(figsize=(8, 5))
     for k, data in history.items():
-        plt.plot(data, color=colors[k], label=labels[k])
+        plt.plot(data, color=COLORS[k], label=LABELS[k])
     ax.set_xlabel("Day")
     ax.set_ylabel("Individuals")
     ax.set_title(f"ABM {model_type} Time Series")
@@ -87,63 +88,63 @@ def plot_network(G, agent_states=None, figsize=(6, 6), model_type = "SIR"):
     plt.show()
 
 
-def animate_network_spread(model, interval=300, figsize=(6,6), model_type = "SIR"):
+def animate_network_spread(model, interval=150, figsize=(12, 12), model_type="SIR"):
     # Animate infection spread on the model's network.
-
-    # Parameters:
-    # model : ABMNetwork
-    #       The network-based model that has already been run() for N days
-    #       and contains daily_S, daily_I, daily_R, agents states per day
-    # interval : int (Milliseconds per frame)
-    # figsize : tuple (Figure size)
 
     if not hasattr(model, "history_states"):
         raise ValueError(
             "Model must store daily node state history in model.history_states. "
             "Modify step() to append `[a.state for a in agents]` each day."
         )
-    
+
     G = model.G
-    history = model.history_states # list of length T, each entry = list of states per node
+    history = model.history_states  # list of length T, each entry = list of states per node
     T = len(history)
 
-    # Node positions (static layout)
-    pos = nx.spring_layout(G, seed=42)
+    pos = nx.spring_layout(G, seed=42, iterations=100)
 
     fig, ax = plt.subplots(figsize=figsize)
-    ax.set_title("SIR Spread Over Network")
-
-    # Color map
-    color_map = {}
-    if model_type == "SIRD" or model_type == "SIR":
-        # map S/I/R -> colors
-        color_map = {0: "lightblue", 1: "red", 2: "green", 3: "black"}
-    elif model_type =="SEIRD" or model_type =="SEIR":
-        color_map = {0: "lightblue", 1: "orange", 2: "red",
-            3: "green", 4: "black"}
-    elif model_type =="SEIARD" or model_type =="SEIAR":
-        color_map = {0: "lightblue", 1: "orange", 2: "purple",
-            3: "red", 4: "green", 5: "black"}
-    else:
-        raise ValueError(
-            "Unknown `model_type`"
-        )
+    ax.margins(0.01)
+    ax.set_title(f"{model_type} Spread Over Network") 
     
-    # Initial node color state
-    node_colors = [color_map[s] for s in history[0]]
+    # Color map
+    state_keys = []
+    if model_type == "SIRD" or model_type == "SIR":
+        state_keys = ["S", "I", "R"]
+    elif model_type == "SEIRD" or model_type == "SEIR":
+        state_keys = ["S", "E", "I", "R", "D"]
+    elif model_type == "SEIARD" or model_type == "SEIAR":
+        state_keys = ["S", "E", "IA", "IS", "R", "D"]
+    else:
+        raise ValueError("Unknown `model_type`")
+    
+    color_map = {i: COLORS[key] for i, key in enumerate(state_keys) if key in COLORS}
 
-    # Draw initial frame
-    nodes = nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=60, ax=ax)
-    edges = nx.draw_networkx_edges(G, pos, ax=ax)
+    legend_handles = []
+    for key in state_keys:
+        if key in COLORS and key in LABELS:
+            patch = mpatches.Patch(color=COLORS[key], label=LABELS[key])
+            legend_handles.append(patch)
+    
+    ax.legend(handles=legend_handles, loc="upper right", title="Agent state")
+    
+    initial_states = history[0]
+    node_colors = [color_map[s] for s in initial_states]
+
+    # Edges printing
+    edges = nx.draw_networkx_edges(G, pos, ax=ax, width=0.1, alpha=0.5, edge_color="gray")
+
+    # Nodes printing
+    nodes = nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=35, ax=ax)
 
     ax.set_axis_off()
 
     def update(frame):
         # Update node colors for frame t
         states = history[frame]
-        node_colors = [color_map[s] for s in states]
-        nodes.set_color(node_colors)
-        ax.set_title(f"Day {frame}")
+        node_colors = [color_map[s] for s in states]       
+        nodes.set_color(node_colors)             
+        ax.set_title(f"{model_type} day {frame}")
         return nodes,
 
     ani = FuncAnimation(
