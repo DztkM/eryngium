@@ -27,7 +27,8 @@ It is designed to be extensible rather than final.
 - (DONE) Create SEIARD ABM
 - (DONE) Create classical SEIRD ABM (to compare results)
 - (DONE) Add Interventions module and lockdown intervention
-- (25% DONE) Add school closure and masks interventions
+- (DONE) Add masks intervention
+- Add school closure intervention
 - Add Age structure
 - Find real medical parameters for models
 - Compare results with scientific reports (maybe add module to compare model time_stamps with real data)
