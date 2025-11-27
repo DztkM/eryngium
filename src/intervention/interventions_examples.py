@@ -22,13 +22,14 @@ class Lockdown(Intervention):
 class Masks(Intervention):
     # Applies mask effectiveness to agents with some probability
     
-    def __init__(self, start_day, compliance=0.8, efficacy=0.5):
+    def __init__(self, start_day, end_day, compliance=0.8, efficacy=0.5):
         self.start_day = start_day
+        self.end_day = end_day
         self.compliance = compliance
         self.efficacy = efficacy
 
     def apply(self, model):
-        if model.day < self.start_day:
+        if model.day < self.start_day or model.day > self.end_day:
             for a in model.agents:
                 a.mask_eff = 0.0
             return

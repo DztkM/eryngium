@@ -76,9 +76,13 @@ class ABMNetwork(ABM):
             # Attempt infection on each contacted neighbor
             for j in contacts:
                 target = self.agents[j]
+                
                 # attempt infection
-                if target.is_susceptible and random.random() < self.cfg.p_infect:
-                    newly_exposed.append(j)
+                if target.is_susceptible:
+                    p = self.cfg.p_infect
+                    p *= (1-agent.mask_eff)
+                    if random.random() < p:
+                        newly_exposed.append(j)
         
         return newly_exposed
 

@@ -18,16 +18,11 @@ class AgentSEIARD(Agent):
     S, E, IS, IA, R, D = range(6)
 
 
-    # def __init__(self, params: ConfigSEIAR, vaccinated: bool = False):
-    #     super().__init__(state=self.R if vaccinated else self.S)
-    #     self.params = params
-    #     self.symptomatic = False
-    #     self.days_remaining = 0
-
     def __init__(self, params: ConfigSEIARD, state: int = S):
         self.state: int = state
         self.params = params
         self.days_remaining: int = 0
+        self.mask_eff = 0
 
 
     def infect(self):

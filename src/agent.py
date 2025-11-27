@@ -16,6 +16,7 @@ class Agent:
         self.state: int = state
         self.params = params
         self.days_remaining: int = 0
+        self.mask_eff = 0
 
 
     @property

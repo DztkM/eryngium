@@ -78,6 +78,7 @@ class ABMNetworkSEIARD(ABMNetwork):
                 if target.is_susceptible:
                     p = (self.cfg.p_infect_IS if agent.state == AgentSEIARD.IS
                          else self.cfg.p_infect_IA)
+                    p *= (1-agent.mask_eff)
                     if random.random() < p:
                         newly_exposed.append(j)
         
