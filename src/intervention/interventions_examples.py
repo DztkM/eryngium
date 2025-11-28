@@ -51,10 +51,9 @@ class Vaccines(Intervention):
 
 
     def apply(self, model):
-
         if self.start_day <= model.day < self.end_day:
             for a in model.agents:
-                if a.is_susceptible and random.random() < self.daily_vaccines:
-                    if random.random() < self.compliance:
+                if a.is_susceptible and not a.vaccinated:
+                    if random.random() < self.daily_vaccines and random.random() < self.compliance:
                         if random.random() < self.efficacy:
                             a.vaccinated = True
