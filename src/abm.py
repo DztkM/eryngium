@@ -24,7 +24,13 @@ class ABM:
         self._init_rng()
 
         # Create agents (initially all susceptible)
-        self.agents: List[Agent] = [Agent(cfg) for _ in range(cfg.N)]
+        # # # self.agents: List[Agent] = [Agent(cfg) for _ in range(cfg.N)]
+        # age groups
+        age_assignments = self._assign_age_groups()
+        self.agents = [
+            Agent(cfg, age_group=age_assignments[i])
+            for i in range(self.cfg.N)
+        ]
 
         # Infect I0 randomly
         initial_I = random.sample(range(cfg.N), cfg.I0)
@@ -41,7 +47,7 @@ class ABM:
         self.interventions = InterventionManager(interventions)
 
         # Dynamic parameter (modifiable by lockdown etc.)
-        self.current_contacts_per_day = cfg.contacts_per_day
+        self.current_contacts_by_group = cfg.contacts_by_group
     
 
     def _init_rng(self) -> None:
@@ -49,6 +55,14 @@ class ABM:
         if self.cfg.seed is not None:
             random.seed(self.cfg.seed)
             np.random.seed(self.cfg.seed)
+
+
+    def _assign_age_groups(self):
+        groups = list(self.cfg.age_group_dist.keys())
+        probs = list(self.cfg.age_group_dist.values())
+
+        assigned = np.random.choice(groups, size=self.cfg.N, p=probs)
+        return assigned
 
 
     def step(self) -> bool:
@@ -114,13 +128,16 @@ class ABM:
             if not agent.is_infectious:
                 continue
             # each infectious agent makes K contacts
-            for _ in range(self.current_contacts_per_day):
+            k = self.current_contacts_by_group[agent.age_group]
+            for _ in range(k):
                 j = random.randrange(self.cfg.N)
                 target = self.agents[j]
                 
                 # attempt infection
                 if target.is_susceptible:
                     p = self.cfg.p_infect
+                    sus_factor = self.cfg.susceptibility_by_group[target.age_group]
+                    p *= sus_factor
                     p *= (1-agent.mask_eff)
                     if random.random() < p:
                         newly_exposed.append(j)

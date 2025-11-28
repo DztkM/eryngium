@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-
+from dataclasses import dataclass, field
 
 @dataclass
 class Config:
@@ -16,10 +15,24 @@ class Config:
     
     N: int = 1000
     I0: int = 10
-    contacts_per_day: int = 10
+    # contacts_per_day: int = 10    # depricated, use contacts_by_group
 
     p_infect: float = 0.08
     inf_period_mean: float = 7
     inf_period_std: float = 3
 
     seed: int | None = None
+
+    # age groups
+    age_groups: list[str] = field(
+        default_factory=lambda: ["child", "adult", "senior"]
+    )
+    age_group_dist: dict[str, float] = field(
+        default_factory=lambda: {"child": 0.2, "adult": 0.65, "senior": 0.15}
+    )
+    susceptibility_by_group: dict[str, float] = field(
+        default_factory=lambda: {"child": 0.9, "adult": 1.0, "senior": 1.3}
+    )
+    contacts_by_group: dict[str, int] = field(
+        default_factory=lambda: {"child": 18, "adult": 15, "senior": 8}
+    )

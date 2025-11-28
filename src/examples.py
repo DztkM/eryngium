@@ -195,29 +195,6 @@ def ex_interventions_seiard_2():
     ani.save("img/masks_intervention_seiard_spread.gif", writer="pillow", fps=1)
 
 
-def ex_interventions_vaccines_seiard_1():
-    cfg = ConfigSEIARD(
-        N=1500,
-        I0=50,
-        contacts_per_day=15,
-        seed=42,
-    )
-    interventions = [
-        Vaccines(start_day=14, end_day=28, daily_vaccines=0.5, compliance=0.8, efficacy=0.93)
-    ]
-
-    model_seiard = ABMNetworkSEIARD(cfg, interventions=interventions, network_type="watts_strogatz", k=10, beta=0.1, )
-    # Run model
-    model_seiard.run(days=64)
-
-    # plot_seiard(model_seiard.history)
-    fig = plot_history(model_seiard.history, "SEIARD (+vaccines start day 14)")
-    fig.savefig("img/vacc_intervention_seiard_day14.png", dpi=300)
-
-    # Animate infection spread:
-    ani = animate_network_spread(model_seiard, interval=200, model_type="SEIARD")
-    ani.save("img/vacc_intervention_seiard_spread_day14.gif", writer="pillow", fps=1)
-
 def ex_interventions_vaccines_seiard_2():
     cfg = ConfigSEIARD(
         N=1500,
@@ -226,18 +203,17 @@ def ex_interventions_vaccines_seiard_2():
         seed=42,
     )
     interventions = [
-        Vaccines(start_day=7, end_day=21, daily_vaccines=0.5, compliance=0.8, efficacy=0.93)
+        Vaccines(start_day=20, end_day=27, daily_vaccines=0.2, compliance=0.8, efficacy=0.93)
     ]
 
-    model_seiard = ABMNetworkSEIARD(cfg, interventions=interventions, network_type="watts_strogatz", k=10,
-                                    beta=0.1, )
+    model_seiard = ABMNetworkSEIARD(cfg, interventions=interventions, network_type="watts_strogatz", k=10, beta=0.1, )
     # Run model
     model_seiard.run(days=64)
 
     # plot_seiard(model_seiard.history)
-    fig = plot_history(model_seiard.history, "SEIARD (+vaccines start day 7)")
-    fig.savefig("img/vacc_intervention_seiard_day7.png", dpi=300)
+    fig = plot_history(model_seiard.history, "SEIARD (+masks)")
+    fig.savefig("img/masks_intervention_seiard.png", dpi=300)
 
     # Animate infection spread:
     ani = animate_network_spread(model_seiard, interval=200, model_type="SEIARD")
-    ani.save("img/vacc_intervention_seiard_spread_day7.gif", writer="pillow", fps=1)
+    ani.save("img/masks_intervention_seiard_spread.gif", writer="pillow", fps=1)

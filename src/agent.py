@@ -12,11 +12,12 @@ class Agent:
     S, I, R = range(3)
 
 
-    def __init__(self, params: Config, state: int = S):
+    def __init__(self, params: Config, state: int = S, age_group: str = "adult"):
         self.state: int = state
         self.params = params
         self.days_remaining: int = 0
         self.mask_eff = 0
+        self.age_group = age_group
 
 
     @property

@@ -17,8 +17,13 @@ class ABMNetworkSEIARD(ABMNetwork):
         self._init_rng()
 
          # Create agents (initially all susceptible)
-        self.agents: List[AgentSEIARD] = [AgentSEIARD(cfg) for _ in range(cfg.N)]
-
+        # # # self.agents: List[AgentSEIARD] = [AgentSEIARD(cfg) for _ in range(cfg.N)]
+        # age groups
+        age_assignments = self._assign_age_groups()
+        self.agents = [
+            AgentSEIARD(cfg, age_group=age_assignments[i])
+            for i in range(self.cfg.N)
+        ]
         # Infect I0 randomly
         initial_I = random.sample(range(cfg.N), cfg.I0)
         for idx in initial_I:
@@ -40,7 +45,7 @@ class ABMNetworkSEIARD(ABMNetwork):
         self.interventions = InterventionManager(interventions)
 
         # Dynamic parameter (modifiable by lockdown etc.)
-        self.current_contacts_per_day = cfg.contacts_per_day
+        self.current_contacts_by_group = cfg.contacts_by_group
 
 
     # === PHASE 0 ===
@@ -69,7 +74,7 @@ class ABMNetworkSEIARD(ABMNetwork):
 
             # Choose `current_contacts_per_day` random neighbors to attempt contact
             # sampling WITH replacement to simulate repeated daily contacts
-            contacts = random.choices(neighbors, k=self.current_contacts_per_day)
+            contacts = random.choices(neighbors, k=self.current_contacts_by_group[agent.age_group])
 
             # Attempt infection on each contacted neighbor
             for j in contacts:
@@ -78,6 +83,8 @@ class ABMNetworkSEIARD(ABMNetwork):
                 if target.is_susceptible and not target.vaccinated:
                     p = (self.cfg.p_infect_IS if agent.state == AgentSEIARD.IS
                          else self.cfg.p_infect_IA)
+                    sus_factor = self.cfg.susceptibility_by_group[target.age_group]
+                    p *= sus_factor
                     p *= (1-agent.mask_eff)
                     if random.random() < p:
                         newly_exposed.append(j)
