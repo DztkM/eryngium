@@ -114,7 +114,7 @@ def animate_network_spread(model, interval=150, figsize=(12, 12), model_type="SI
     elif model_type == "SEIRD" or model_type == "SEIR":
         state_keys = ["S", "E", "I", "R", "D"]
     elif model_type == "SEIARD" or model_type == "SEIAR":
-        state_keys = ["S", "E", "IA", "IS", "R", "D"]
+        state_keys = ["S", "E", "IS", "IA", "R", "D"]
     else:
         raise ValueError("Unknown `model_type`")
     
