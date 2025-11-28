@@ -63,8 +63,8 @@ def ex_seird_1():
 
 def ex_seiard_1():
     cfg = ConfigSEIARD(
-        N=1500,
-        I0=50, 
+        N=3000,
+        I0=100, 
         seed=42,
     )
 
