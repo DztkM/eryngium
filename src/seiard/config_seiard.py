@@ -7,6 +7,7 @@ class ConfigSEIARD:
     
     N: int = 1000
     I0: int = 10
+    starting_total_infections: int = 0
     # contacts_per_day: int = 10    # depricated, use contacts_by_group
     seed: int | None = None
 

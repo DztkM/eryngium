@@ -35,10 +35,11 @@ class ABMNetworkSEIRD(ABMNetwork):
         self.G = self._create_network()
 
         # Time-series tracking (store S/E/IA/IS/R/D counts per day)
-        self.history: Dict[str, list[int]] = {k: [] for k in ["S", "E", "I", "R", "D"]}
+        self.history: Dict[str, list[int]] = {k: [] for k in ["S", "E", "I", "R", "D", "I_cumulative"]}
         self.history_states: list[list[int]] = [] # stores list of agent states each day
         
         self.day: int = 0
+        self.total_infections = cfg.starting_total_infections
         self.finished = False
 
         # Interventions
@@ -48,7 +49,7 @@ class ABMNetworkSEIRD(ABMNetwork):
         self.current_contacts_by_group = cfg.contacts_by_group
 
 
-    # === PHASE 0 ===
+    # === PHASE 0.5 ===
     def _should_continue(self) -> bool:
         # Check if epidemic is still active
         # Default behavior: stop when no infected remain
@@ -58,7 +59,7 @@ class ABMNetworkSEIRD(ABMNetwork):
 
 
     # === PHASE 4 ===
-    def _log_states(self) -> None:
+    def _log_states(self, new_infections_today: int) -> None:
         # Count all states for logging
         states = [a.state for a in self.agents]
         self.history["S"].append(states.count(AgentSEIRD.S))
@@ -67,3 +68,6 @@ class ABMNetworkSEIRD(ABMNetwork):
         self.history["R"].append(states.count(AgentSEIRD.R))
         self.history["D"].append(states.count(AgentSEIRD.D))
         self.history_states.append(states)
+        # Update cumulative infections
+        self.total_infections += new_infections_today
+        self.history["I_cumulative"].append(self.total_infections)
