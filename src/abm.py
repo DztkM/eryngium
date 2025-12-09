@@ -38,9 +38,10 @@ class ABM:
             self.agents[idx].state = Agent.I
 
         # Time-series tracking (store S/I/R counts per day)
-        self.history: Dict[str, list[int]] = {k: [] for k in ["S", "I", "R"]}
+        self.history: Dict[str, list[int]] = {k: [] for k in ["S", "I", "R", "I_cumulative"]}
         
         self.day: int = 0
+        self.total_infections = cfg.starting_total_infections
         self.finished = False
 
         # Interventions
@@ -84,6 +85,7 @@ class ABM:
 
         # Phase 1: Infectious agents form contacts & mark new infections
         new_infections = self._collect_infections()
+        new_count = len(set(new_infections))
 
         # Phase 2: Apply new infections (batch update for correctness)
         self._apply_infections(new_infections)
@@ -92,7 +94,7 @@ class ABM:
         self._progress_states()
         
         # Phase 4: Log daily summary
-        self._log_states()
+        self._log_states(new_count)
 
         self.day += 1
         return True
@@ -162,8 +164,9 @@ class ABM:
         for ag in self.agents:
             ag.progress()
 
+
     # === PHASE 4 ===
-    def _log_states(self) -> None:
+    def _log_states(self, new_infections_today: int) -> None:
         # Record S/I/R counts for plotting
         # Subclasses may override to include E, IA, IS, D, V, etc
 
@@ -171,16 +174,9 @@ class ABM:
         self.history["S"].append(states.count(Agent.S))
         self.history["I"].append(states.count(Agent.I))
         self.history["R"].append(states.count(Agent.R))
-
-    # === PHASE 4 ===
-    def _log_states(self) -> None:
-        # Record S/I/R counts for plotting
-        # Subclasses may override to include E, IA, IS, D, V, etc
-
-        states = [a.state for a in self.agents]
-        self.history["S"].append(states.count(Agent.S))
-        self.history["I"].append(states.count(Agent.I))
-        self.history["R"].append(states.count(Agent.R))
+        # Update cumulative infections
+        self.total_infections += new_infections_today
+        self.history["I_cumulative"].append(self.total_infections)
 
 
     # =================================

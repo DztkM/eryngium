@@ -90,8 +90,8 @@ class ABMNetwork(ABM):
 
 
     # === PHASE 4 ===
-    def _log_states(self) -> None:
-        super()._log_states()
+    def _log_states(self, new_infections_today: int) -> None:
+        super()._log_states(new_infections_today)
         
         # Record current node states
         self.history_states.append([a.state for a in self.agents])
