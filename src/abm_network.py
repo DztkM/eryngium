@@ -78,7 +78,7 @@ class ABMNetwork(ABM):
                 target = self.agents[j]
                 
                 # attempt infection
-                if target.is_susceptible:
+                if target.is_susceptible and not target.vaccinated:
                     p = self.cfg.p_infect
                     sus_factor = self.cfg.susceptibility_by_group[target.age_group]
                     p *= sus_factor

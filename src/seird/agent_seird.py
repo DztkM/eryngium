@@ -23,6 +23,7 @@ class AgentSEIRD(Agent):
         self.days_remaining: int = 0
         self.mask_eff = 0
         self.age_group = age_group
+        self.vaccinated: bool = False
 
 
     def infect(self):
