@@ -9,8 +9,8 @@ COLORS = {
     "S": "lightblue", 
     "E": "orange", 
     "IS": "red",
-    "IA": "purple",
-    "I": "red", 
+    "I": "red",
+    "I_cumulative": "pink",  
     "R": "green", 
     "D": "black"
 }
@@ -21,6 +21,7 @@ LABELS = {
     "IA": "Infectious Asymptomatic",
     "IS": "Infectious Symptomatic",
     "I": "Infectious",
+    "I_cumulative": "Infectious Cumulative", 
     "R": "Recovered",
     "D": "Dead",
 }

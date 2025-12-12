@@ -78,7 +78,7 @@ class ABMNetwork(ABM):
                 target = self.agents[j]
                 
                 # attempt infection
-                if target.is_susceptible:
+                if target.is_susceptible and not target.vaccinated:
                     p = self.cfg.p_infect
                     sus_factor = self.cfg.susceptibility_by_group[target.age_group]
                     p *= sus_factor
@@ -90,8 +90,8 @@ class ABMNetwork(ABM):
 
 
     # === PHASE 4 ===
-    def _log_states(self) -> None:
-        super()._log_states()
+    def _log_states(self, new_infections_today: int) -> None:
+        super()._log_states(new_infections_today)
         
         # Record current node states
         self.history_states.append([a.state for a in self.agents])

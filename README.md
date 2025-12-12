@@ -11,8 +11,9 @@ This is a university project for the "Symulacje Systemów Dyskretnych 2025/2026"
 - Mateusz Działowski
 - Filip Duda
 
-## (TODO) Sources: 
-- https://ieeexplore.ieee.org/abstract/document/6113095
+## Sources: 
+- (re-check) [ABM of Epidemic Spread](https://ieeexplore.ieee.org/abstract/document/6113095)
+- [COVID-19 Case Count by Date (Cambridge Open Data Portal)](https://data.cambridgema.gov/Public-Health/COVID-19-Case-Count-by-Date-3-1-2020-11-24-2022/axxk-jvk8/about_data)
 
 ## Current state:
 

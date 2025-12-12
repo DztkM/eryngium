@@ -1,3 +1,4 @@
+import pickle
 from config import Config
 from abm import ABM
 from abm_network import ABMNetwork
@@ -7,6 +8,8 @@ from seiard.config_seiard import ConfigSEIARD
 from seiard.abm_network_seiard import ABMNetworkSEIARD
 from visualization import plot_history, plot_network, animate_network_spread
 from intervention.interventions_examples import Lockdown, Masks, Vaccines
+from data.evaluate_model import evaluate_model
+from data.load_data import load_data
 
 
 def ex_sir_1():
@@ -46,7 +49,6 @@ def ex_seird_1():
     cfg = ConfigSEIRD(
         N=1500,
         I0=50,
-        contacts_per_day=15, 
         seed=42,
     )
     model_seird = ABMNetworkSEIRD(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
@@ -64,8 +66,8 @@ def ex_seird_1():
 
 def ex_seiard_1():
     cfg = ConfigSEIARD(
-        N=3000,
-        I0=100, 
+        N=1500,
+        I0=50,
         seed=42,
     )
 
@@ -105,7 +107,6 @@ def ex_interventions_seird_1():
     cfg = ConfigSEIRD(
         N=1500,
         I0=50,
-        contacts_per_day=15, 
         seed=42,
     )
     interventions = [
@@ -127,8 +128,7 @@ def ex_interventions_seird_1():
 def ex_interventions_seiard_1():
     cfg = ConfigSEIARD(
         N=1500,
-        I0=50,
-        contacts_per_day=15, 
+        I0=50, 
         seed=42,
     )
     interventions = [
@@ -174,7 +174,6 @@ def ex_interventions_seiard_2():
     cfg = ConfigSEIARD(
         N=1500,
         I0=50,
-        contacts_per_day=15, 
         seed=42,
     )
     interventions = [
@@ -237,3 +236,69 @@ def ex_interventions_vaccines_seiard_1():
     # Animate infection spread:
     ani = animate_network_spread(model_seiard, interval=200, model_type="SEIARD")
     ani.save("img/vacc_intervention_seiard_spread_day7.gif", writer="pillow", fps=1)
+
+
+def ex_compare_sir():
+    cfg = Config(
+        N = 125_000,
+        I0 = 80,
+        starting_total_infections=3689,
+        p_infect=0.0525,
+        inf_period_mean=8,
+        inf_period_std=2,
+        contacts_by_group={"child": 6,"adult": 5,"senior": 4},
+        seed=42,
+    )
+
+    model_net = ABMNetwork(cfg, network_type="watts_strogatz", k=10, beta=0.1)
+    model_net.run(days=500)
+    # with open("sir_history.pkl", "wb") as f:
+    #     pickle.dump(model_net.history, f)
+    
+    real_data = load_data("data/processed_data.csv", 125000, 8)
+    evaluate_model(model_net.history, real_data)
+
+
+def ex_compare_seird():
+    cfg = ConfigSEIRD(
+        N = 125_000,
+        I0 = 80,
+        starting_total_infections=3689,
+        p_infect=0.041,
+        inf_period_mean=8,
+        inf_period_std=2,
+        contacts_by_group={"child": 6,"adult": 5,"senior": 4},
+        seed=42,
+    )
+
+    model_net = ABMNetworkSEIRD(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
+    model_net.run(days=300)
+    
+    real_data = load_data("data/processed_data.csv", 125000, 8)
+    evaluate_model(model_net.history, real_data)
+
+
+def ex_compare_seiard():
+    cfg = ConfigSEIARD(
+        N = 125_000,
+        I0 = 80,
+        starting_total_infections=3689,
+        p_infect_IS=0.041,
+        inf_period_mean_IS=8,
+        inf_period_std_IS=2,
+        p_symptomatic=0.8,
+        p_infect_IA=0.03,
+        inf_period_mean_IA=3,
+        inf_period_std_IA=1,
+        contacts_by_group={"child": 7,"adult": 5,"senior": 4},
+        age_group_dist = {"child": 0.15,"adult": 0.82,"senior": 0.03},
+        seed=42,
+    )
+
+    model = ABMNetworkSEIARD(cfg, network_type="watts_strogatz", k=17, beta=0.13,)
+    model.run(days=300)
+    
+    real_data = load_data("data/processed_data.csv", 125000, 8)
+    hist = model.history
+    hist["I"] = [ia + is_ for ia, is_ in zip(hist["IA"], hist["IS"])]
+    evaluate_model(hist, real_data)
