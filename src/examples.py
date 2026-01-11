@@ -241,17 +241,22 @@ def ex_interventions_vaccines_seiard_1():
 def ex_compare_sir():
     cfg = Config(
         N = 125_000,
-        I0 = 80,
+        I0 = 180,
         starting_total_infections=3689,
-        p_infect=0.0525,
+
+        contacts_by_group={"child": 8,"adult": 5,"senior": 4},
+        age_group_dist = {"child": 0.16,"adult": 0.72,"senior": 0.12},
+        
+        p_infect=0.04756,
+        
         inf_period_mean=8,
         inf_period_std=2,
-        contacts_by_group={"child": 6,"adult": 5,"senior": 4},
+        
         seed=42,
     )
 
     model_net = ABMNetwork(cfg, network_type="watts_strogatz", k=10, beta=0.1)
-    model_net.run(days=500)
+    model_net.run(days=300)
     # with open("sir_history.pkl", "wb") as f:
     #     pickle.dump(model_net.history, f)
     
@@ -262,17 +267,21 @@ def ex_compare_sir():
 def ex_compare_seird():
     cfg = ConfigSEIRD(
         N = 125_000,
-        I0 = 80,
+        I0 = 180,
         starting_total_infections=3689,
+        
         p_infect=0.041,
-        inf_period_mean=8,
+        
+        inf_period_mean=7,
         inf_period_std=2,
-        contacts_by_group={"child": 6,"adult": 5,"senior": 4},
+        
+        contacts_by_group={"child": 8,"adult": 5,"senior": 4},
+        
         seed=42,
     )
 
     model_net = ABMNetworkSEIRD(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
-    model_net.run(days=300)
+    model_net.run(days=200)
     
     real_data = load_data("data/processed_data.csv", 125000, 8)
     evaluate_model(model_net.history, real_data)
@@ -281,21 +290,24 @@ def ex_compare_seird():
 def ex_compare_seiard():
     cfg = ConfigSEIARD(
         N = 125_000,
-        I0 = 80,
+        I0 = 180,
         starting_total_infections=3689,
-        p_infect_IS=0.041,
+        
+        p_infect_IS=0.036,
+        p_infect_IA=0.026,
+        p_symptomatic=0.8,
+        
         inf_period_mean_IS=8,
         inf_period_std_IS=2,
-        p_symptomatic=0.8,
-        p_infect_IA=0.03,
         inf_period_mean_IA=3,
         inf_period_std_IA=1,
-        contacts_by_group={"child": 7,"adult": 5,"senior": 4},
-        age_group_dist = {"child": 0.15,"adult": 0.82,"senior": 0.03},
+        
+        contacts_by_group={"child": 8,"adult": 5,"senior": 4},
+        age_group_dist = {"child": 0.16,"adult": 0.72,"senior": 0.12},
         seed=42,
     )
 
-    model = ABMNetworkSEIARD(cfg, network_type="watts_strogatz", k=17, beta=0.13,)
+    model = ABMNetworkSEIARD(cfg , network_type="watts_strogatz", k=17, beta=0.13,)
     model.run(days=300)
     
     real_data = load_data("data/processed_data.csv", 125000, 8)

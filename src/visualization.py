@@ -7,7 +7,8 @@ import matplotlib.patches as mpatches
 
 COLORS = {
     "S": "lightblue", 
-    "E": "orange", 
+    "E": "orange",
+    "IA": "purple", 
     "IS": "red",
     "I": "red",
     "I_cumulative": "pink",  

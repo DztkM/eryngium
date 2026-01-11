@@ -29,11 +29,11 @@ class Config:
         default_factory=lambda: ["child", "adult", "senior"]
     )
     age_group_dist: dict[str, float] = field(
-        default_factory=lambda: {"child": 0.2, "adult": 0.65, "senior": 0.15}
+        default_factory=lambda: {"child": 0.16,"adult": 0.72,"senior": 0.12}
     )
     susceptibility_by_group: dict[str, float] = field(
         default_factory=lambda: {"child": 0.9, "adult": 1.0, "senior": 1.3}
     )
     contacts_by_group: dict[str, int] = field(
-        default_factory=lambda: {"child": 18, "adult": 15, "senior": 8}
+        default_factory=lambda: {"child": 8,"adult": 5,"senior": 4}
     )
