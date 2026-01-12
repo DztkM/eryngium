@@ -11,7 +11,7 @@ class ConfigSEIRD:
     # contacts_per_day: int = 10    # depricated, use contacts_by_group
     seed: int | None = None
 
-    p_infect: float = 0.035
+    p_infect: float = 0.041
     # mortality_rate: float = 0.025 # depricated, use mortality_by_group
 
     inf_period_mean: float = 7

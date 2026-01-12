@@ -247,12 +247,12 @@ def ex_compare_sir():
         contacts_by_group={"child": 8,"adult": 5,"senior": 4},
         age_group_dist = {"child": 0.16,"adult": 0.72,"senior": 0.12},
         
-        p_infect=0.04756,
+        p_infect=0.0544,
         
-        inf_period_mean=8,
+        inf_period_mean=7,
         inf_period_std=2,
         
-        seed=42,
+        seed=42
     )
 
     model_net = ABMNetwork(cfg, network_type="watts_strogatz", k=10, beta=0.1)
@@ -281,7 +281,7 @@ def ex_compare_seird():
     )
 
     model_net = ABMNetworkSEIRD(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
-    model_net.run(days=200)
+    model_net.run(days=300)
     
     real_data = load_data("data/processed_data.csv", 125000, 8)
     evaluate_model(model_net.history, real_data)
@@ -293,21 +293,21 @@ def ex_compare_seiard():
         I0 = 180,
         starting_total_infections=3689,
         
-        p_infect_IS=0.036,
-        p_infect_IA=0.026,
+        p_infect_IS=0.03785,
+        p_infect_IA=0.031,
         p_symptomatic=0.8,
         
-        inf_period_mean_IS=8,
-        inf_period_std_IS=2,
-        inf_period_mean_IA=3,
-        inf_period_std_IA=1,
+        inf_period_mean_IS=9,
+        inf_period_std_IS=3,
+        inf_period_mean_IA=4,
+        inf_period_std_IA=2,
         
         contacts_by_group={"child": 8,"adult": 5,"senior": 4},
         age_group_dist = {"child": 0.16,"adult": 0.72,"senior": 0.12},
         seed=42,
     )
 
-    model = ABMNetworkSEIARD(cfg , network_type="watts_strogatz", k=17, beta=0.13,)
+    model = ABMNetworkSEIARD(cfg , network_type="watts_strogatz", k=10, beta=0.1,)
     model.run(days=300)
     
     real_data = load_data("data/processed_data.csv", 125000, 8)
