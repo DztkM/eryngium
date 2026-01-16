@@ -26,12 +26,14 @@ def ex_sir_1():
 
 def ex_sirnetwork_1():
     cfg = Config(
+        N=1500,
+        I0=230,
         seed=42
     )
 
     model_net = ABMNetwork(cfg, network_type="watts_strogatz", k=10, beta=0.1)
     # Run model
-    model_net.run(days=60)
+    model_net.run(days=100)
 
     fig = plot_history(model_net.history, "SIR_network")
     fig.savefig("img/sir_network.png", dpi=300)
@@ -48,13 +50,13 @@ def ex_sirnetwork_1():
 def ex_seird_1():
     cfg = ConfigSEIRD(
         N=1500,
-        I0=50,
+        I0=230,
         seed=42,
     )
     model_seird = ABMNetworkSEIRD(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
 
     # Run model
-    model_seird.run(days=64)
+    model_seird.run(days=100)
 
     fig = plot_history(model_seird.history, "SEIRD")
     fig.savefig("img/seird.png", dpi=300)
@@ -67,13 +69,13 @@ def ex_seird_1():
 def ex_seiard_1():
     cfg = ConfigSEIARD(
         N=1500,
-        I0=50,
+        I0=230,
         seed=42,
     )
 
     model_seiard = ABMNetworkSEIARD(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
     # Run model
-    model_seiard.run(days=64)
+    model_seiard.run(days=100)
 
     fig = plot_history(model_seiard.history, "SEIARD")
     fig.savefig("img/seiard.png", dpi=300)
@@ -128,11 +130,12 @@ def ex_interventions_seird_1():
 def ex_interventions_seiard_1():
     cfg = ConfigSEIARD(
         N=1500,
-        I0=50, 
+        I0=230, 
         seed=42,
     )
+    
     interventions = [
-            Lockdown(start_day=8, end_day=15, reduction_factor=0.5),
+            Lockdown(start_day=5, end_day=10, reduction_factor=0.5),
         ]
     
     model_seiard = ABMNetworkSEIARD(cfg, interventions=interventions, network_type="watts_strogatz", k=10, beta=0.1,)
@@ -173,7 +176,7 @@ def ex_interventions_sirnetwork_2():
 def ex_interventions_seiard_2():
     cfg = ConfigSEIARD(
         N=1500,
-        I0=50,
+        I0=230, 
         seed=42,
     )
     interventions = [
@@ -196,7 +199,7 @@ def ex_interventions_seiard_2():
 def ex_interventions_vaccines_seiard_2():
     cfg = ConfigSEIARD(
         N=1500,
-        I0=50,
+        I0=230, 
         seed=42,
     )
     interventions = [
@@ -218,7 +221,7 @@ def ex_interventions_vaccines_seiard_2():
 def ex_interventions_vaccines_seiard_1():
     cfg = ConfigSEIARD(
         N=1500,
-        I0=50,
+        I0=230,
         seed=42,
     )
     interventions = [
@@ -247,7 +250,7 @@ def ex_compare_sir():
         contacts_by_group={"child": 8,"adult": 5,"senior": 4},
         age_group_dist = {"child": 0.16,"adult": 0.72,"senior": 0.12},
         
-        p_infect=0.0544,
+        p_infect=0.041,
         
         inf_period_mean=7,
         inf_period_std=2,
@@ -256,7 +259,7 @@ def ex_compare_sir():
     )
 
     model_net = ABMNetwork(cfg, network_type="watts_strogatz", k=10, beta=0.1)
-    model_net.run(days=300)
+    model_net.run(days=250)
     # with open("sir_history.pkl", "wb") as f:
     #     pickle.dump(model_net.history, f)
     
@@ -281,7 +284,7 @@ def ex_compare_seird():
     )
 
     model_net = ABMNetworkSEIRD(cfg, network_type="watts_strogatz", k=10, beta=0.1,)
-    model_net.run(days=300)
+    model_net.run(days=250)
     
     real_data = load_data("data/processed_data.csv", 125000, 8)
     evaluate_model(model_net.history, real_data)
@@ -308,7 +311,7 @@ def ex_compare_seiard():
     )
 
     model = ABMNetworkSEIARD(cfg , network_type="watts_strogatz", k=10, beta=0.1,)
-    model.run(days=300)
+    model.run(days=250)
     
     real_data = load_data("data/processed_data.csv", 125000, 8)
     hist = model.history

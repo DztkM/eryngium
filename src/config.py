@@ -18,7 +18,7 @@ class Config:
     starting_total_infections: int = 0
     # contacts_per_day: int = 10    # depricated, use contacts_by_group
 
-    p_infect: float = 0.0544
+    p_infect: float = 0.041
     inf_period_mean: float = 7
     inf_period_std: float = 2
 

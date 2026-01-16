@@ -35,7 +35,8 @@ class ABM:
         # Infect I0 randomly
         initial_I = random.sample(range(cfg.N), cfg.I0)
         for idx in initial_I:
-            self.agents[idx].state = Agent.I
+            self.agents[idx].infect()
+            # self.agents[idx].state = Agent.I
 
         # Time-series tracking (store S/I/R counts per day)
         self.history: Dict[str, list[int]] = {k: [] for k in ["S", "I", "R", "I_cumulative"]}

@@ -6,22 +6,22 @@ from typing import List
 def evaluate_model(model_history, real_data, plot=True):
     # ACTIVE CASES COMPARISON
 
-    model_I = np.array(model_history["I"], dtype=int)
-    real_I = np.array(real_data["I"], dtype=int)
+    # model_I = np.array(model_history["I"], dtype=int)
+    # real_I = np.array(real_data["I"], dtype=int)
     
-    L = min(len(model_I), len(real_I))
-    model_I = model_I[:L]
-    real_I = real_I[:L]
+    # L = min(len(model_I), len(real_I))
+    # model_I = model_I[:L]
+    # real_I = real_I[:L]
 
-    mae_active = np.mean(np.abs(model_I - real_I))
-    mse_active = np.mean((model_I - real_I) ** 2)
-    rmse_active = np.sqrt(mse_active)
+    # mae_active = np.mean(np.abs(model_I - real_I))
+    # mse_active = np.mean((model_I - real_I) ** 2)
+    # rmse_active = np.sqrt(mse_active)
 
-    metrics_active = {
-        "MAE": mae_active,
-        "MSE": mse_active,
-        "RMSE": rmse_active,
-    }
+    # metrics_active = {
+    #     "MAE": mae_active,
+    #     "MSE": mse_active,
+    #     "RMSE": rmse_active,
+    # }
 
     # CUMULATIVE CASES COMPARISON
     
@@ -46,16 +46,16 @@ def evaluate_model(model_history, real_data, plot=True):
     # PLOTTING
     if plot:
 
-        # Active cases plot
-        plt.figure(figsize=(10, 5))
-        plt.plot(real_I, label="Real active cases", linewidth=2)
-        plt.plot(model_I, label="Model active cases", linestyle='--')
-        plt.title("Model vs Real — Active Cases")
-        plt.xlabel("Day")
-        plt.ylabel("Active infections")
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+        # # Active cases plot
+        # plt.figure(figsize=(10, 5))
+        # plt.plot(real_I, label="Real active cases", linewidth=2)
+        # plt.plot(model_I, label="Model active cases", linestyle='--')
+        # plt.title("Model vs Real — Active Cases")
+        # plt.xlabel("Day")
+        # plt.ylabel("Active infections")
+        # plt.legend()
+        # plt.grid(True)
+        # plt.show()
 
         # Cumulative cases plot
         plt.figure(figsize=(10, 5))
@@ -71,16 +71,21 @@ def evaluate_model(model_history, real_data, plot=True):
         # Error metrics plot
         plt.figure(figsize=(8, 5))
         
-        labels = ["Active MAE", "Active MSE", "Active RMSE",
-                  "Cumulative MAE", "Cumulative MSE", "Cumulative RMSE"]
-        values = [
-            mae_active, mse_active, rmse_active,
-            mae_cum, mse_cum, rmse_cum
-        ]
+        # labels = ["Active MAE", "Active MSE", "Active RMSE",
+        #           "Cumulative MAE", "Cumulative MSE", "Cumulative RMSE"]
+        # values = [
+        #     mae_active, mse_active, rmse_active,
+        #     mae_cum, mse_cum, rmse_cum
+        # ]
+        # labels = ["Cumulative MAE", "Cumulative MSE", "Cumulative RMSE"]
+        # values = [mae_cum, mse_cum, rmse_cum]
+        labels = ["Cumulative MAE", "Cumulative RMSE"]
+        values = [mae_cum, rmse_cum]
 
         plt.bar(labels, values)
         plt.xticks(rotation=45, ha='right')
-        plt.title("Error Metrics (Active & Cumulative)")
+        # plt.title("Error Metrics (Active & Cumulative)")
+        plt.title("Error Metrics")
         plt.ylabel("Error value")
         plt.grid(axis='y')
         plt.yscale("log")
@@ -89,6 +94,6 @@ def evaluate_model(model_history, real_data, plot=True):
 
     # RETURN BOTH METRIC SETS
     return {
-        "active": metrics_active,
+        # "active": metrics_active,
         "cumulative": metrics_cumulative
     }
